@@ -21,7 +21,8 @@
   --nav-w:236px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+/* iOS Safari 的自動放大字級（text inflation）：窄欄寬的表格會被整欄放大成兩倍字，關掉 */
+html,body{margin:0;padding:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
   font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:var(--bg); color:var(--ink);
