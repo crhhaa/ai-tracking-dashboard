@@ -1324,7 +1324,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
         <span class="cm-ctl-l">比較粒度</span>
         <div class="seg" id="cm-seg-level">
           <button data-m="dept" class="on">對照後部門</button>
-          <button data-m="func">8 大部門別</button>
+          <button data-m="func">部門別</button>
         </div>
         <span class="cm-ctl-l">熱力圖指標</span>
         <div class="seg" id="cm-seg-metric">
@@ -1343,7 +1343,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
 
       <div class="grp-h">鳥瞰：各部門之跨子公司差距</div>
       <div class="card" id="cm-heat-card">
-        <div class="card-h"><h3 class="card-t">部門 × 子公司<small>橘色＝高於同部門中位數、藍色＝低於中位數，色階越深代表偏離越大；格內為實際數值　·　「未填」＝有場景但未填報工時　·　「未提報」＝設有此部門但無場景　·　空白＝無此部門　·　點任一格可查看該數值之計算明細</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】方格圖，列為部門（對照後名稱），欄為子公司，格子為所選指標；右側為同部門中位數。&#10;【關係】顏色以每一列自身的中位數為基準，避免單一極端值使其他列全部變淡；橘色高於中位數、藍色低於中位數。&#10;【算法】&#10;・格內為實際值，色階依該值相對同部門中位數的倍數決定&#10;・可比部門 ＝ 依部門對照表，2 家以上子公司設有之部門（不以是否提報場景為條件）&#10;・「未填」＝該子公司在該部門有場景但完全未填工時，不計入中位數，亦不視為 0&#10;・「未提報」＝設有此部門但目前範圍內無場景；空白＝無此部門&#10;【本頁特例】本頁不套用頂欄之子公司篩選；選定子公司僅將該欄標示、其餘欄淡化，資料範圍不變&#10;【可以點】點格子查看計算明細，點列標題跳至該部門之逐部門場景對照。">?</span>
+        <div class="card-h"><h3 class="card-t">部門 × 子公司<small>橘色＝高於同部門中位數、藍色＝低於中位數，色階越深代表偏離越大；格內為實際數值　·　「未填」＝有場景但未填報工時　·　「未提報」＝設有此部門但無場景　·　空白＝無此部門　·　點任一格可查看該數值之計算明細</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】方格圖，列為部門（對照後名稱），欄為子公司，格子為所選指標；右側為同部門中位數。&#10;【關係】顏色以每一列自身的中位數為基準，避免單一極端值使其他列全部變淡；橘色高於中位數、藍色低於中位數。&#10;【算法】&#10;・格內為實際值，色階依該值相對同部門中位數的倍數決定&#10;・可比部門 ＝ 依部門對照表，2 家以上子公司設有、且至少 1 家填報過工時之部門（整列均未填報者不列）&#10;・「未填」＝該子公司在該部門有場景但完全未填工時，不計入中位數，亦不視為 0&#10;・「未提報」＝設有此部門但目前範圍內無場景；空白＝無此部門&#10;【本頁特例】本頁不套用頂欄之子公司篩選；選定子公司僅將該欄標示、其餘欄淡化，資料範圍不變&#10;【可以點】點格子查看計算明細，點列標題跳至該部門之逐部門場景對照。">?</span>
           <button class="btn-x btn-tcopy" data-tbl="cm-heat" data-name="跨子公司同部門熱力圖">複製圖片</button>
           <button class="btn-x btn-tpng" data-tbl="cm-heat" data-name="跨子公司同部門熱力圖">下載 PNG</button>
           <button class="btn-x btn-xls" data-tbl="cm-heat" data-name="跨子公司同部門熱力圖">下載表格</button></div>
@@ -1627,7 +1627,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
                     職能不同者一律不合併」；一個原始部門僅歸一個對照後部門。完整清單列於該分頁最下方之「部門對照表」</li>
                 <li><b>僅比較 2 家以上子公司皆有之部門</b>；僅單一子公司有者不納入比較，於對照表列出</li>
                 <li><b>指標與粒度可切換</b>：AI 約當人力（預設）／每場景平均／平均工時減幅 %；
-                    粒度可切原始部門名與 8 大部門別；範圍可切全部場景與僅已上線</li>
+                    粒度可切原始部門名與部門別；範圍可切全部場景與僅已上線</li>
                 <li><b>離群判定</b>：該部門已填報之子公司達 3 家以上方判定，達中位數 2 倍以上為高離群、0.5 倍以下為低離群；
                     中位數為 0 時不做倍數判定。未填報效益者不計入中位數，亦不視為 0</li>
                 <li><b>點任一格可開啟差額拆解視窗</b>：以瀑布圖將兩家落差拆為「對方獨有場景」「共有場景之效益差」
@@ -2268,7 +2268,7 @@ function zoomOpt(D, fn) {
 /* 圖表副標用：說明部門別是怎麼歸的、放大後看得到什麼 */
 function dimNote(D) {
   if (D.label !== '部門') return '';
-  return '；部門歸為 8 大類，' + D.deptN + ' 個原始部門可點標題放大' +
+  return '；部門歸為 ' + D.all.length + ' 大類，' + D.deptN + ' 個原始部門可點標題放大' +
     (D.tailN ? '（僅列前 ' + DIM_MAX + ' 名，其餘 ' + D.tailN + ' 個見場景明細）' : '');
 }
 /* 圖表下鑽的共用入口：組出標題、篩出資料列、開彈跳視窗 */
@@ -3452,7 +3452,9 @@ function renderFuncTable() {
   var keys = SEL_CO ? [SEL_CO] : COS;
   /* 一格 ＝ 一家公司 × 一個部門：該群場景的人力相加後四捨五入到小數點第一位。
      每一筆都是 0.1 的整數倍，所以合計不論從場景加還是把格子加都一樣，橫豎都對得起來。 */
-  var FK = FUNCS.map(function (f) { return f.k; });
+  /* 控管表沒有這個部門別的資料就整欄不畫（例如沒人填「全公司」時就不留那三欄空格） */
+  var FL = FUNCS.filter(function (f) { return d.some(function (r) { return r.func === f.k; }); });
+  var FK = FL.map(function (f) { return f.k; });
   var coRows = {};
   keys.forEach(function (k) { coRows[k] = d.filter(function (r) { return r.co === k; }); });
   var cellOf = function (k, f) {
@@ -3483,7 +3485,7 @@ function renderFuncTable() {
     (SEL_CO ? '（已篩選至 ' + esc(SEL_CO) + '）' : '') + '。' +
     '人力<b>逐場景四捨五入至小數點第一位後相加</b>，<b>AI 約當人力 ＝ 導入前 − 導入後</b>，' +
     '每一格、每一列、合計列都成立。' +
-    '部門別<b>直接讀控管表的 Function 欄</b>（該欄未填才回退「集團各部門Funtion分類明細」對照），共 8 大類，' +
+    '部門別<b>直接讀控管表的 Function 欄</b>（該欄未填才回退「集團各部門Funtion分類明細」對照），本表共 ' + FL.length + ' 大類（無資料者不列），' +
     (SEL_CO ? '篩到單一公司時公司列只剩一行，改成一部門一列；' : '') +
     '可點「AI 約當人力」格子核對場景' +
     '</small>';
@@ -3536,26 +3538,26 @@ function renderFuncTable() {
   }
 
   var h = '<div class="tbl-wrap fit"><table class="mtx fit"><thead><tr><th rowspan="4" class="rh">公司</th>';
-  FUNCS.forEach(function (f) { h += '<th colspan="3" class="g">' + esc(f.k) + '</th>'; });
+  FL.forEach(function (f) { h += '<th colspan="3" class="g">' + esc(f.k) + '</th>'; });
   h += '<th colspan="3" class="g tot">合計</th></tr><tr>';
-  FUNCS.forEach(function (f) { h += '<th colspan="3" class="hint">' + esc(f.hint) + '</th>'; });
+  FL.forEach(function (f) { h += '<th colspan="3" class="hint">' + esc(f.hint) + '</th>'; });
   h += '<th colspan="3" class="hint">全部門</th></tr><tr>';
   // 場景數列：口徑跟底下的人力數字一致（只算已填報導入前後工時的場景）
-  FUNCS.concat([{ k: '' }]).forEach(function (f) {
+  FL.concat([{ k: '' }]).forEach(function (f) {
     var v = aggFte(keys, f.k);
     h += '<th colspan="2" class="hint">場景數</th>' +
       '<th class="c hint' + (v ? ' hit' : '') + '"' + (v ? ' data-nf="' + esc(f.k) + '"' : '') + '>' +
       (v ? fmt(v.n) : '-') + '</th>';
   });
   h += '</tr><tr>';
-  FUNCS.concat([{ k: '合計' }]).forEach(function (f, i) {
+  FL.concat([{ k: '合計' }]).forEach(function (f, i) {
     h += '<th class="c sp">導入前</th><th class="c">導入後</th><th class="c hl">AI 約當人力</th>';
   });
   h += '</tr></thead><tbody>';
 
   var maxS = 0;
   keys.forEach(function (k) {
-    FUNCS.forEach(function (f) {
+    FL.forEach(function (f) {
       var v = aggFte([k], f.k);
       if (v && v.s > maxS) maxS = v.s;
     });
@@ -3563,7 +3565,7 @@ function renderFuncTable() {
 
   var body = function (ks, key, cls) {
     var t = '<tr class="' + (cls || '') + '"><td class="rh">' + esc(key || '集團合計') + '</td>';
-    FUNCS.concat([{ k: '' }]).forEach(function (f) {
+    FL.concat([{ k: '' }]).forEach(function (f) {
       var v = aggFte(ks, f.k);
       if (!v) { t += '<td class="c sp">-</td><td class="c">-</td><td class="c hl">-</td>'; return; }
       var bg = maxS > 0 && f.k ? ' style="background:rgba(242,111,40,' + (0.06 + 0.30 * (v.s / maxS)) + ')"' : '';
@@ -5463,7 +5465,7 @@ function renderBenefit() {
       list.map(function (x) { return opt(x.v, x.t, BN_DEPT); }).join('') + '</optgroup>' : '';
   };
   dpSel.innerHTML = opt('', pCo ? '全公司合計' : '全部部門（依部門別）', BN_DEPT) +
-    grp('依部門別（8 大類）', fnDps) + grp(pCo ? '依原始部門' : '', rawDps);
+    grp('依部門別（' + fnDps.length + ' 大類）', fnDps) + grp(pCo ? '依原始部門' : '', rawDps);
 
   var unitName, uOf;
   var fk = BN_DEPT.indexOf('fn:') === 0 ? BN_DEPT.slice(3) : '';
@@ -6193,6 +6195,8 @@ function cmpDeptHas() {
 function cmpList() {
   // 一家都沒提報場景的部門不必比（cmpData 本來就只產出有場景的部門，故不另行補列）
   return cmpData().filter(function (g) {
+    // 整列都是「未填／未提報」（沒有任何一家算得出數字）就不列：無數可比，中位數也印不出來
+    if (g.max === null) return false;
     return (CMP_HAS[g.key] ? Object.keys(CMP_HAS[g.key]).length : 0) >= 2 || g.coKeys.length >= 2;
   })
     // 固定依「該部門最高值 − 中位數」由大到小排；這是可直接換算成人年的差額，不需要再讓人選
@@ -6776,7 +6780,7 @@ function renderCompare() {
       ? kGo(SEL_CO + ' 最大差額', selTop ? cmpFmt(selTop.lag) : '—', selTop ? M.u : '',
         selTop ? selTop.g.key + '：' + SEL_CO + ' ' + cmpFmt(selTop.mine) + '，同部門最高 ' + cmpFmt(selTop.g.max)
           : SEL_CO + ' 於各可比部門均為最高值', '', selTop && selTop.g.key)
-      : kGo('可比部門', list.length, '個', '依部門對照表，2 家以上子公司設有且至少 1 家提報場景之部門；' +
+      : kGo('可比部門', list.length, '個', '依部門對照表，2 家以上子公司設有且至少 1 家提報過已填報工時之場景；' +
         '另有 ' + nSolo + ' 個僅 1 家子公司設有，不納入比較', '', null)) +
     kGo('未填報工時', missCell, '格', '有場景但完全未填工時之「子公司 × 部門」，不計入中位數，亦不視為 0', '', null);
   $$('#cm-kpi [data-ck]').forEach(function (el) {
@@ -6985,6 +6989,7 @@ function renderCmpMap() {
   var m = {};
   var cell = function (k, co) {
     var g = m[k] || (m[k] = { key: k, cos: {}, n: 0 });
+    g.nBen = g.nBen || 0;
     return g.cos[co] || (g.cos[co] = { n: 0, names: {}, roster: false });
   };
   if (R) Object.keys(R).forEach(function (co) {
@@ -6995,6 +7000,7 @@ function renderCmpMap() {
     if (!k || k === NO_DEPT) return;
     var b = cell(k, r.co);
     m[k].n++; b.n++;
+    if (r.fte !== null) m[k].nBen++;
     if (r.dept) b.names[norm(r.dept)] = 1;
   });
   var rows = Object.keys(m).map(function (k) {
@@ -7006,8 +7012,9 @@ function renderCmpMap() {
     return b.coKeys.length - a.coKeys.length || b.n - a.n;
   });
 
-  // 「納入比較」＝ 2 家以上子公司設有此部門，且至少 1 家提報過場景（與上方熱力圖的可比部門同一門檻）
-  var canCmp = function (g) { return g.coKeys.length >= 2 && g.n > 0; };
+  /* 「納入比較」＝ 2 家以上子公司設有此部門，且至少 1 家提報過「有填工時」的場景
+     ——與上方熱力圖同一門檻：整列都算不出人年的部門那裡不畫，這裡也不能列在①。 */
+  var canCmp = function (g) { return g.coKeys.length >= 2 && g.nBen > 0; };
   var inc = rows.filter(canCmp);
   var out = rows.filter(function (g) { return !canCmp(g); });
 
@@ -7053,8 +7060,8 @@ function renderCmpMap() {
     '對照為人工判定：同一職能、僅稱呼（部／室／處）或編制切法（一部／二部／三部）不同者合併，' +
     '職能不同者一律不合併（資訊開發 ≠ 資訊管理 ≠ 資安、財富管理 ≠ 理財事業）；' +
     '一個原始部門僅歸一個對照後部門，不重複計入</div>' +
-    sec('① 納入比較', '2 家以上子公司設有此部門，且至少 1 家提報過場景', inc, true) +
-    sec('② 未納入比較', '僅 1 家子公司設有此部門，或全體均未提報場景', out, false);
+    sec('① 納入比較', '2 家以上子公司設有此部門，且至少 1 家提報過已填報工時之場景', inc, true) +
+    sec('② 未納入比較', '僅 1 家子公司設有此部門，或全體均未提報場景／均未填報工時', out, false);
 }
 
 /* ================= 導覽 ================= */
