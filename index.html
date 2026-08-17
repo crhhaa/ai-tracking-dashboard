@@ -21,8 +21,7 @@
   --nav-w:236px;
 }
 *{box-sizing:border-box}
-/* iOS Safari 的自動放大字級（text inflation）：窄欄寬的表格會被整欄放大成兩倍字，關掉 */
-html,body{margin:0;padding:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{margin:0;padding:0}
 body{
   font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:var(--bg); color:var(--ink);
@@ -318,10 +317,6 @@ button{font-family:inherit}
   background:var(--card);border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--sh-1);overflow:hidden
 }
-/* 上下相鄰的整版卡片本來會黏在一起（只有 .row 帶 margin），間距跟並排卡的 gap 取一致。
-   並排卡不能吃這個 margin：grid 撐等高之後，第二張卡的高度會被 margin 扣掉 16px，兩張卡就對不齊 */
-.card + .card,.row + .card{margin-top:16px}
-.row .card + .card{margin-top:0}
 /* 並排的圖表卡：grid 本來就把兩張卡拉成等高，但副標行數不同時圖只有固定高，
    下緣就對不齊。讓卡片變成 flex 直排、圖表吃掉剩餘空間，兩張圖的繪圖區才會齊底
    （高度變了由 renderAll 收尾的 resize 通知 echarts） */
@@ -366,11 +361,6 @@ button{font-family:inherit}
 .chart.tall{height:400px}
 .chart.xtall{height:660px}
 .chart.sm{height:250px}
-/* 分布分析並排的兩張圖：高度寫死，否則會隨篩選後的管道數與子頁籤變動，兩張卡片一直跳。
-   而且不跟著卡片長高——兩張卡的副標行數不同，讓圖去補剩餘空間的話，
-   卡片雖然齊底、兩張圖的繪圖區卻差了一行的高度，並排看就是不等高 */
-.chart.dist{height:420px}
-.row .card>.chart.dist{flex:0 0 auto}
 
 .empty{
   display:flex;align-items:center;justify-content:center;height:100%;
@@ -396,9 +386,6 @@ table.tbl tr.tbl-sum td{
 }
 table.tbl tr.tbl-sum td.r{text-align:right;font-size:13.5px}
 #md-body table.tbl th{top:34px}
-/* 序號欄：只是給人報數用的，壓窄、壓灰，不跟資料欄搶視線 */
-table.tbl th.sq,table.tbl td.sq{width:44px;text-align:right;padding-right:10px}
-table.tbl td.sq{color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:12.5px}
 table.tbl th.sortable{cursor:pointer;user-select:none;transition:.12s}
 table.tbl th.sortable:hover{background:#DFEAF3;color:var(--yt-orange)}
 table.tbl th i{font-style:normal;opacity:.35;margin-left:3px}
@@ -489,24 +476,26 @@ table.mtx.prog td.pc b{margin-right:4px;font-size:13.5px}
 table.mtx.prog .mb{width:32px}
 table.mtx.prog td{font-size:13.5px;padding:5px 2px}
 table.mtx.prog td.rh{font-size:12.5px}
-/* 推動方式左右並排：兩塊底色不同才分得出中線在哪，否則 16 欄數字會連成一片。
-   橘＝優先導入、藍＝橫向複製，與「橫向複製」頁的上線率卡同一套配色 */
-/* 藍＝優先導入、金＝橫向複製，與「橫向複製」頁的堆疊柱（ch-pri）同一套配色。
-   優先導入沿用預設的 th.g 藍，只有橫向複製要另外指定 */
-table.mtx.prog th.c.pri{background:#E4EDF5;color:#2C5C7F}
-table.mtx.prog th.g.rep{background:#9E7B3C;border-bottom-color:#856530}
-table.mtx.prog th.c.rep{background:#F4EDDD;color:#7A5C22}
-table.mtx.prog td.rep{background:#FDFAF3}
-/* 合計列整列同一個底色：.rep 的類別數比 tfoot 那條規則多，不寫回去右半會留著淡金底 */
-table.mtx.prog tfoot tr.sum td.rep{background:#F4EFF7}
-table.mtx.prog tbody tr:hover td.rep{background:#F6EFE1}
-/* 「場景數」欄兩塊同色：左右已經靠表頭與底色分開了，數字再分兩色，
-   合計列會變成左半橘、右半藍，看起來像兩張表拼在一起 */
-table.mtx.prog td.tot{font-weight:800;color:var(--yt-blue-d)}
-/* 未標記：控管表沒填推動方式的殘量，不展開技術類型，只留一欄提醒它存在 */
-table.mtx.prog th.untag{background:#6E8698;color:#fff;border-bottom-color:#5C7383}
-table.mtx.prog td.untag{background:#F4F6F8;color:#5E6B76}
-table.mtx.prog th.g em,table.mtx.prog th.untag em{color:rgba(255,255,255,.82);font-size:10px}
+/* 推動方式（優先導入／橫向複製）的組標籤欄：兼作該組完成度的落點 */
+table.mtx.prog td.gh{text-align:left;padding-left:8px;font-size:12px;font-weight:700;
+  color:var(--yt-blue-d);background:#F7FAFD;cursor:pointer;white-space:normal;line-height:1.25}
+table.mtx.prog td.gh em{display:block;font-style:normal;font-weight:800;font-size:11.5px;color:var(--yt-orange)}
+table.mtx.prog tbody tr:hover td.gh{background:#EDF4FA}
+
+/* 各季累計導入完成度：列數＝維度 × 技術類型，會很長，整張表自己捲動 */
+.card .tbl-wrap.qtr-wrap{max-height:560px;overflow:auto}
+table.mtx.qtr td.rh2,table.mtx.qtr th.rh2{text-align:left;padding-left:12px}
+table.mtx.qtr td.rh2{font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+table.mtx.qtr td.rh2:hover{color:var(--yt-orange)}
+/* 已過或當季：深底白字，一眼分得出左邊是實績區間、右邊是規劃區間 */
+table.mtx.qtr th.past{background:#24506F;color:#fff}
+table.mtx.qtr td.tot{font-weight:800;color:var(--yt-blue-d)}
+table.mtx.qtr td.qc{font-size:13px;line-height:1.15;padding:4px 6px}
+table.mtx.qtr td.qc em{display:block;font-style:normal;font-size:10.5px;font-weight:700;opacity:.78}
+table.mtx.qtr td.warn{color:#A9331F;font-weight:800}
+/* 同一個維度值的第一列畫上分隔線，10 家公司才不會黏成一片 */
+table.mtx.qtr tr.gtop td{border-top:2px solid #D8E3EC}
+table.mtx.qtr tbody tr:hover td.qc{outline:1px solid var(--yt-blue-d);outline-offset:-1px}
 
 .pill{display:inline-block;padding:2px 9px;border-radius:6px;font-size:11px;font-weight:700;
   white-space:nowrap;border:1px solid transparent}
@@ -1206,6 +1195,22 @@ table.cmp-t tr.cmp-r{cursor:pointer}
         <div id="ov-prog"></div>
       </div>
 
+      <div class="card">
+        <div class="card-h"><h3 class="card-t" id="ov-cov-t">場景覆蓋率</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】列為子公司（篩選至單一公司時改為部門），每一列分「覆蓋數」與「占比」兩列；欄為導入管道（M365 Copilot、Github Copilot、碩網、賽微、自建、其他）。&#10;【關係】呈現各子公司的場景實際透過哪些管道落地；占比列同一列橫向相加為 100%。&#10;【算法】&#10;・覆蓋數 ＝ 該列 × 該管道的場景數&#10;・占比 ＝ 覆蓋數 ÷ 該列全部場景數&#10;・導入管道取實際廠商：已填合作廠商者採該廠商；微軟／M365 一律歸為 M365 Copilot&#10;・技術類型為「程式助手」者，不論廠商欄填報內容一律歸 Github Copilot（集團統一工具）&#10;・其餘未填廠商者依建置方式歸「自建」或「其他」&#10;【可以點】點任一格檢視該管道的場景清單；點標題可放大，向下捲動檢視全部部門。">?</span>
+          <button class="btn-x btn-tcopy" data-tbl="ov-cov" data-name="場景覆蓋率">複製圖片</button>
+          <button class="btn-x btn-tpng" data-tbl="ov-cov" data-name="場景覆蓋率">下載 PNG</button>
+          <button class="btn-x btn-xls" data-tbl="ov-cov" data-name="場景覆蓋率">下載表格</button></div>
+        <div id="ov-cov"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3 class="card-t" id="ov-qtr-t">各季累計導入完成度　·　技術類型</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】列為子公司（篩選至單一公司時改為部門）× 技術類型，欄為季別；格子上方為累計場景數、下方為完成度。&#10;【關係】對應控管表「子公司 AI 推動完成度」頁籤，呈現各技術類型的導入時程分布；同列由左至右遞增，越早達 100% 者導入時程越前面。&#10;【算法】&#10;・累計場景數 ＝ 該列中「預計/實際上線」季別小於等於該季之場景數&#10;・完成度 ＝ 累計場景數 ÷ 該列總場景數&#10;・係依「預計/實際上線」欄累計，為規劃完成度，非實際上線比率&#10;・未填上線時程之場景不計入任何季別，另列於「未排定」欄&#10;・深色表頭之季別為已過或當季&#10;【可以點】點任一格檢視累計至該季的場景清單；點技術類型檢視該類全部場景；點標題可放大，向下捲動檢視全部部門。">?</span>
+          <button class="btn-x btn-tcopy" data-tbl="ov-qtr" data-name="各季累計導入完成度">複製圖片</button>
+          <button class="btn-x btn-tpng" data-tbl="ov-qtr" data-name="各季累計導入完成度">下載 PNG</button>
+          <button class="btn-x btn-xls" data-tbl="ov-qtr" data-name="各季累計導入完成度">下載表格</button></div>
+        <div id="ov-qtr"></div>
+      </div>
+
       <div class="grp-h">分布分析</div>
       <div class="row c2">
         <div class="card">
@@ -1217,25 +1222,13 @@ table.cmp-t tr.cmp-r{cursor:pointer}
             </div>
             <select id="tech-year" class="sel-h" aria-label="選擇年度" style="visibility:hidden" disabled></select>
             <button class="btn-png" data-chart="ch-tech" data-name="技術類型分布">下載 PNG</button></div>
-          <div class="chart dist" id="ch-tech"></div>
+          <div class="chart" id="ch-tech"></div>
         </div>
         <div class="card">
-          <div class="card-h"><h3 class="card-t" id="ov-chan-t">導入管道</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】方格圖，縱軸固定為導入管道，橫軸可切換兩種維度：「依子公司」（篩選至單一公司時為依部門）與「依技術類型」；格子為該管道涵蓋的場景數（顏色越深數量越多），管道名稱後方灰字為該管道合計。&#10;【關係】兩者同一套管道歸戶：前者看各子公司靠哪一管道落地，後者看各項技術實際透過哪一管道落地。&#10;【算法】&#10;・格子 ＝ 該管道 × 該欄的場景數，即該欄的場景覆蓋率之分子&#10;・滑鼠提示同時列出占該欄、占該管道與占全體之比率&#10;・管道名稱後方合計 ＝ 該列各格相加&#10;・導入管道取實際廠商：已填合作廠商者採該廠商；微軟／M365 一律歸為 M365 Copilot&#10;・技術類型為「程式助手」者，不論廠商欄填報內容一律歸 Github Copilot（集團統一工具）&#10;・其餘未填廠商者依建置方式歸「自建」或「其他」&#10;【可以點】點任一格檢視該管道之場景清單；「依子公司／依部門」頁籤於篩選至單一公司時可點標題放大展開全部部門。">?</span>
-            <div class="seg" id="chan-seg">
-              <button data-m="cov" id="chan-seg-dim" class="on">依子公司</button>
-              <button data-m="tech">依技術類型</button>
-            </div>
-            <span id="chan-btns"></span></div>
-          <div class="chart dist" id="ch-vendor"></div>
+          <div class="card-h"><h3 class="card-t">導入管道 × 技術類型<small id="ov-vendor-note"></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】方格圖，橫軸為技術類型，縱軸為導入管道，格子為場景數（顏色越深數量越多）；管道名稱後方灰字為該管道合計。&#10;【關係】技術類型與導入管道的交叉分布，呈現各項技術實際透過哪一管道落地。&#10;【算法】&#10;・格子 ＝ 該管道 × 該技術的場景數&#10;・管道名稱後方合計 ＝ 該列各格相加&#10;・導入管道取實際廠商：已填合作廠商者採該廠商；微軟／M365 一律歸為 M365 Copilot&#10;・技術類型為「程式助手」者，不論廠商欄填報內容一律歸 Github Copilot（集團統一工具）&#10;【可以點】點格子檢視該管道該技術的場景清單。">?</span>
+            <button class="btn-png" data-chart="ch-vendor" data-name="導入管道與技術類型">下載 PNG</button></div>
+          <div class="chart sm" id="ch-vendor"></div>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-h"><h3 class="card-t" id="ov-qtr-t">各季累計導入完成度　·　技術類型</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】折線圖。橫軸為季別，縱軸為累計至該季之完成度，一條線為一技術類型，橘色虛線為本季度。&#10;【關係】對應控管表「子公司 AI 推動完成度」頁籤，呈現各技術類型於控管表中規劃的鋪排節奏；線越早拉高者導入時程越前面，同一季各線之高低差即為各技術類型進度之落差。&#10;【算法】&#10;・累計場景數 ＝「預計/實際上線」季別 ≦ 該季之場景數&#10;・完成度 ＝ 累計場景數 ÷ 該技術類型總場景數&#10;・係依「預計/實際上線」欄累計，為規劃值，非實際上線比率&#10;・未填上線時程之場景不計入任何季別，其筆數另記於副標&#10;・右上兩組下拉（子公司、部門別）可疊加，僅影響本圖；橫軸季別取自未篩選之資料，切換選項時不跳動&#10;・頂欄已篩選至單一子公司時，子公司下拉鎖定為該公司&#10;・滑鼠移入可一次檢視各技術類型之累計筆數與總場景數&#10;【可以點】點任一點檢視累計至該季之場景清單。">?</span>
-          <select id="qtr-co" class="sel-h" aria-label="篩選子公司"></select>
-          <select id="qtr-func" class="sel-h" aria-label="篩選部門別"></select>
-          <button class="btn-png" data-chart="ch-qtr" data-name="各季累計導入完成度">下載 PNG</button></div>
-        <div class="chart tall" id="ch-qtr"></div>
       </div>
 
       <div class="grp-h">人力配置效率（部門別）</div>
@@ -1324,7 +1317,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
         <span class="cm-ctl-l">比較粒度</span>
         <div class="seg" id="cm-seg-level">
           <button data-m="dept" class="on">對照後部門</button>
-          <button data-m="func">部門別</button>
+          <button data-m="func">8 大部門別</button>
         </div>
         <span class="cm-ctl-l">熱力圖指標</span>
         <div class="seg" id="cm-seg-metric">
@@ -1343,7 +1336,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
 
       <div class="grp-h">鳥瞰：各部門之跨子公司差距</div>
       <div class="card" id="cm-heat-card">
-        <div class="card-h"><h3 class="card-t">部門 × 子公司<small>橘色＝高於同部門中位數、藍色＝低於中位數，色階越深代表偏離越大；格內為實際數值　·　「未填」＝有場景但未填報工時　·　「未提報」＝設有此部門但無場景　·　空白＝無此部門　·　點任一格可查看該數值之計算明細</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】方格圖，列為部門（對照後名稱），欄為子公司，格子為所選指標；右側為同部門中位數。&#10;【關係】顏色以每一列自身的中位數為基準，避免單一極端值使其他列全部變淡；橘色高於中位數、藍色低於中位數。&#10;【算法】&#10;・格內為實際值，色階依該值相對同部門中位數的倍數決定&#10;・可比部門 ＝ 依部門對照表，2 家以上子公司設有、且至少 1 家填報過工時之部門（整列均未填報者不列）&#10;・「未填」＝該子公司在該部門有場景但完全未填工時，不計入中位數，亦不視為 0&#10;・「未提報」＝設有此部門但目前範圍內無場景；空白＝無此部門&#10;【本頁特例】本頁不套用頂欄之子公司篩選；選定子公司僅將該欄標示、其餘欄淡化，資料範圍不變&#10;【可以點】點格子查看計算明細，點列標題跳至該部門之逐部門場景對照。">?</span>
+        <div class="card-h"><h3 class="card-t">部門 × 子公司<small>橘色＝高於同部門中位數、藍色＝低於中位數，色階越深代表偏離越大；格內為實際數值　·　「未填」＝有場景但未填報工時　·　「未提報」＝設有此部門但無場景　·　空白＝無此部門　·　點任一格可查看該數值之計算明細</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】方格圖，列為部門（對照後名稱），欄為子公司，格子為所選指標；右側為同部門中位數。&#10;【關係】顏色以每一列自身的中位數為基準，避免單一極端值使其他列全部變淡；橘色高於中位數、藍色低於中位數。&#10;【算法】&#10;・格內為實際值，色階依該值相對同部門中位數的倍數決定&#10;・可比部門 ＝ 依部門對照表，2 家以上子公司設有之部門（不以是否提報場景為條件）&#10;・「未填」＝該子公司在該部門有場景但完全未填工時，不計入中位數，亦不視為 0&#10;・「未提報」＝設有此部門但目前範圍內無場景；空白＝無此部門&#10;【本頁特例】本頁不套用頂欄之子公司篩選；選定子公司僅將該欄標示、其餘欄淡化，資料範圍不變&#10;【可以點】點格子查看計算明細，點列標題跳至該部門之逐部門場景對照。">?</span>
           <button class="btn-x btn-tcopy" data-tbl="cm-heat" data-name="跨子公司同部門熱力圖">複製圖片</button>
           <button class="btn-x btn-tpng" data-tbl="cm-heat" data-name="跨子公司同部門熱力圖">下載 PNG</button>
           <button class="btn-x btn-xls" data-tbl="cm-heat" data-name="跨子公司同部門熱力圖">下載表格</button></div>
@@ -1387,6 +1380,16 @@ table.cmp-t tr.cmp-r{cursor:pointer}
           <div class="grp-h">橫向複製概況</div>
           <div class="kpi-grid k2" id="rp-dup"></div>
         </div>
+      </div>
+
+      <div class="grp-h">優先導入 / 橫向複製 時程 Roadmap</div>
+      <div class="card">
+        <div class="card-h"><h3 class="card-t" id="rp-rd-t">各季上線規劃 × 推動方式<small id="rp-rd-note"></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】橫軸為季度，左軸柱為該季預計上線之場景數（藍為優先導入、金為橫向複製），右軸線為各自之累積上線場景數。&#10;【關係】兩組柱並列同一季之量體，兩條累積線之落差呈現橫向複製較優先導入落後之程度與時點。&#10;【算法】&#10;・柱 ＝ 該季該推動方式之場景數，依「預計/實際上線」歸季&#10;・累積線 ＝ 至該季止該推動方式之場景數累加&#10;・推動方式取控管表「優先導入／橫向複製」欄之逐筆標記，非計算值；未標記者不計入本圖&#10;・未填時程之場景不計入本圖，其筆數列於副標&#10;【可以點】點任一柱檢視該季該推動方式的場景清單。">?</span>
+          <select id="rp-tech" class="sel-h" aria-label="技術類型"></select>
+          <select id="rp-co" class="sel-h" aria-label="子公司"></select>
+          <select id="rp-func" class="sel-h" aria-label="部門別"></select>
+          <button class="btn-png" data-chart="ch-rp-rd" data-name="推動方式時程Roadmap">下載 PNG</button></div>
+        <div class="chart tall" id="ch-rp-rd"></div>
       </div>
 
       <div class="grp-h">橫向複製 × 技術類型</div>
@@ -1530,28 +1533,16 @@ table.cmp-t tr.cmp-r{cursor:pointer}
         <ol class="chlog">
           <li>
             <div class="ch-d">v4</div>
-            <ul><li><b>「AI 運用場景導入進度」總表改以推動方式左右並排</b>：左半為<b>優先導入</b>、右半為<b>橫向複製</b>，
-                    各含場景數與技術類型分布，每一子公司仍只佔「已上線／總場景數」兩列，整張表得以完整貼入簡報。
-                    推動方式取控管表「優先導入／橫向複製」欄之逐筆標記，非計算值；該欄空白或值不屬兩類者另立
-                    「未標記」欄（不展開技術類型），且僅於確有此類場景時列出。
-                    對應控管表「子公司 AI 推動進度總覽」頁籤之種子部門與橫向複製兩區塊</li>
-                <li><b>新增「各季累計導入完成度 · 技術類型」</b>：對應控管表「子公司 AI 推動完成度」頁籤，
-                    橫軸為季別、縱軸為累計完成度，一條線為一技術類型，並附<b>子公司</b>與<b>部門別</b>兩組下拉（可疊加，僅影響本圖）。
-                    分子為「預計/實際上線」季別 ≦ 該季之場景數、分母為該技術類型總場景數，
-                    係控管表<b>規劃</b>之鋪排節奏，<b>非實際上線比率</b>；未填時程之場景不計入任何季別，其筆數列於副標</li>
-                <li><b>「導入管道」整併為單一卡片，並可切換兩種維度</b>：原「導入管道 × 技術類型」與
-                    導入進度總表右半之「場景覆蓋率」合為一張方格圖，縱軸固定為導入管道，
-                    橫軸可切換<b>依子公司</b>（預設，篩選至單一公司時為依部門）或<b>依技術類型</b>；
-                    滑鼠提示同時列出占該欄、占該管道與占全體之比率</li>
-                <li><b>「分布分析」兩張並排圖表改為固定高度</b>：原高度依管道數計算，篩選或切換維度時卡片會整個跳動</li>
-                <li><b>統一「優先導入／橫向複製」之配色</b>：全站一律<b>藍＝優先導入、金＝橫向複製</b>。
-                    原「橫向複製」頁之堆疊柱為藍／金，其下方之上線率卡卻為橘／藍，兩者相鄰而配色相反；
-                    現與總覽導入進度總表三處取同一套</li>
-                <li><b>下鑽之場景明細新增「序號」欄</b>：清單依目前狀態、子公司、年減少工時排序後逐列編號，
-                    便於口頭指認「第幾筆」，並可與合計列之筆數對照</li>
-                <li><b>版面與配色修正</b>：上下相鄰之整版卡片補上間距（原僅並排卡有間距，直排時會黏在一起）；
-                    「分布分析」並排之兩張圖表改為固定高度且不隨卡片延展，兩張繪圖區完全等高（原隨副標行數不同而相差一行）；
-                    導入進度總表之合計列統一底色與字色（原左半沿用優先導入之淡橘底、右半為合計列底色，看起來像兩張表拼接）</li></ul>
+            <ul><li><b>「AI 運用場景導入進度」總表拆為三張</b>：原表一列 19 欄，技術類型與場景覆蓋率擠在同一張，
+                    每欄僅剩約 40 px。現拆為「AI 運用場景導入進度」「場景覆蓋率」「各季累計導入完成度」三張獨立表格，
+                    各自可下鑽、放大與匯出</li>
+                <li><b>導入進度總表改以「推動方式」分組</b>：每一子公司（或部門）依控管表「優先導入／橫向複製」欄之
+                    逐筆標記分為兩組，每組再分「已上線」與「總場景數」兩列並依技術類型展開，
+                    組標籤下方標示該組自身之上線率。對應控管表「子公司 AI 推動進度總覽」頁籤之種子部門與橫向複製兩區塊。
+                    該欄空白或填報值不屬兩類者歸「未標記」，且僅於確有此類場景時才列出</li>
+                <li><b>新增「各季累計導入完成度 · 技術類型」總表</b>：對應控管表「子公司 AI 推動完成度」頁籤，
+                    列為子公司 × 技術類型、欄為季別，格子為累計至該季之場景數與完成度，顏色深淺表完成度高低。
+                    係依「預計/實際上線」累計，為<b>規劃</b>完成度而非已上線比率，未填時程者另列「未排定」欄</li></ul>
           </li>
           <li>
             <div class="ch-d">v3.6</div>
@@ -1627,7 +1618,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
                     職能不同者一律不合併」；一個原始部門僅歸一個對照後部門。完整清單列於該分頁最下方之「部門對照表」</li>
                 <li><b>僅比較 2 家以上子公司皆有之部門</b>；僅單一子公司有者不納入比較，於對照表列出</li>
                 <li><b>指標與粒度可切換</b>：AI 約當人力（預設）／每場景平均／平均工時減幅 %；
-                    粒度可切原始部門名與部門別；範圍可切全部場景與僅已上線</li>
+                    粒度可切原始部門名與 8 大部門別；範圍可切全部場景與僅已上線</li>
                 <li><b>離群判定</b>：該部門已填報之子公司達 3 家以上方判定，達中位數 2 倍以上為高離群、0.5 倍以下為低離群；
                     中位數為 0 時不做倍數判定。未填報效益者不計入中位數，亦不視為 0</li>
                 <li><b>點任一格可開啟差額拆解視窗</b>：以瀑布圖將兩家落差拆為「對方獨有場景」「共有場景之效益差」
@@ -1989,7 +1980,7 @@ var DEPT_FUNC = {
   '法務暨法令遵循部': '稽核法遵風控', '財務精算一部': '財務會計', '財務精算二部': '財務會計', '商品企劃部': '經營企劃', '商品精算一部': '經營企劃',
   '商品精算二部': '經營企劃', '資訊系統開發部': '資訊資安', '指數暨量化投資事業群': '業務通路', '環球市場投資部': '業務通路', '台股投資部': '業務通路',
   '固定收益部': '業務通路', '交易部': '業務通路', '專戶管理部': '業務通路', '期貨信託部': '業務通路', '理財事業部': '業務通路', '基金事務部－客服組': '客戶服務',
-  '高階主管（經營層）': '經營企劃', '數位金融暨行銷企劃部': '經營企劃', '數位科技部': '資訊資安', '基金事務部': '客戶服務', '結算部': '內部行政',
+  '高階主管（經營層）': '經營企劃', '數位金融暨行銷企劃部': '經營企劃', '數位科技部': '資訊資安', '基金事務部': '內部行政', '結算部': '內部行政',
   '自營部': '業務通路', '槓桿交易部': '業務通路', '國內法人部': '業務通路', '國外法人部': '業務通路', '財管處': '業務通路', '通路暨顧問事業部': '業務通路',
   '新竹分公司': '業務通路', '台中分公司': '業務通路', '台南分公司': '業務通路', '高雄分公司': '業務通路', '元大期貨（香港）': '業務通路',
   '元大國際（新加坡）': '業務通路', '客服交易部': '客戶服務', '研究中心': '業務通路', '市場研究部': '業務通路', '期貨研究部': '業務通路',
@@ -2018,7 +2009,7 @@ var DEPT_ALIAS = {
   '人壽|人資': '內部行政', '人壽|保服及續保': '客戶服務', '人壽|全公司': '全公司', '人壽|商品精算': '經營企劃', '人壽|契約': '客戶服務',
   '人壽|客戶服務': '客戶服務', '人壽|會計': '財務會計', '人壽|法務': '稽核法遵風控', '人壽|法遵': '稽核法遵風控', '人壽|理賠': '客戶服務',
   '人壽|直營業務': '業務通路', '人壽|經代通路業務': '業務通路', '人壽|財務': '財務會計', '人壽|資訊': '資訊資安', '人壽|通路企劃': '業務通路',
-  '投信|交易': '業務通路', '投信|人資': '內部行政', '投信|台股投資': '業務通路', '投信|固收': '業務通路', '投信|基金事務': '客戶服務',
+  '投信|交易': '業務通路', '投信|人資': '內部行政', '投信|台股投資': '業務通路', '投信|固收': '業務通路', '投信|基金事務': '內部行政',
   '投信|專戶管理': '業務通路', '投信|投研單位': '業務通路', '投信|數科': '資訊資安', '投信|數金': '經營企劃', '投信|期信': '業務通路',
   '投信|期貨信託': '業務通路', '投信|法務': '內部行政', '投信|法遵': '稽核法遵風控', '投信|理財': '業務通路', '投信|理財事業': '業務通路',
   '投信|環球': '業務通路', '投信|稽核': '稽核法遵風控', '投信|結算': '內部行政', '投信|綜企': '經營企劃', '投信|行管': '內部行政',
@@ -2081,23 +2072,15 @@ var CMP_CANON = {
   '資訊系統開發一部': '資訊系統開發部', '資訊系統開發二部': '資訊系統開發部',
   '資訊系統開發三部': '資訊系統開發部', '資開一部': '資訊系統開發部', '資開二部': '資訊系統開發部',
   '資開單位': '資訊系統開發部',
-  // 同職能不同稱呼——依控管表「集團各部門Funtion分類矩陣」逐格核對後合併
-  // 客戶服務：矩陣裡除人壽外每家就一個單位（證券作中／銀行作服／投信基金事務／期貨客服交易），
-  // 名稱差很多但都是「直接服務客戶之作業與服務單位」，合併後這一列才有得比；
-  // 人壽另有保服及續保／理賠／契約三個保險專屬單位，別家沒有對應，維持各自一列。
-  '作業中心': '客戶服務部', '作中': '客戶服務部', '作業服務部': '客戶服務部',
-  '基金事務部': '客戶服務部', '基金事務': '客戶服務部', '客服交易部': '客戶服務部', '客服': '客戶服務部',
-  // 經營層：矩陣同一格的四種寫法
-  '董事長室／總經理室（主管區）': '主管區（經營層）', '首長區（董事會／高階主管）': '主管區（經營層）',
-  '高階主管（經營層）': '主管區（經營層）',
+  // 同職能不同稱呼
   '數位金融事業處': '數位金融部', '數位金融暨行銷企劃部': '數位金融部', '數金': '數位金融部',
   '通路事業處': '通路事業部', '通路暨顧問事業部': '通路事業部', '通路': '通路事業部',
   // 同一家公司內的簡稱回填（不是跨公司合併，只是把同一家的兩種寫法收成一筆，否則同一家會被算成兩個部門）
   '風管': '風險管理部', '財務': '財務部', '會計': '會計部', '法金事業': '法金事業處',
   '債券': '債券部', '金交': '金融交易部', '財管': '財富管理部', '人資': '人力資源部',
-  '綜企': '綜合企劃部', '行管': '行政管理部', '結算': '結算部',
+  '綜企': '綜合企劃部', '行管': '行政管理部', '結算': '結算部', '客服': '客服交易部',
   '國營': '國際營運部', '國金': '國際金融業務部', '投行': '投資銀行業務部',
-  '計交': '計量交易部', '資管': '資訊系統管理部', '國際法人': '國際法人部',
+  '計交': '計量交易部', '資管': '資訊系統管理部', '國際法人': '國際法人部', '作中': '作業中心',
   // 控管表裡帶換行的填報值（norm 會把換行一起吃掉，這裡收正規化後的樣子）
   '研究中心編譯管理': '研究中心'
 };
@@ -2186,13 +2169,11 @@ var ROSTER_FUNC = null;   // { 子公司: { 歸屬功能: 1 } }
 var META = { file: '', at: null, sheets: [], skipped: [], unmapped: [] };
 var COS = [];             // 實際存在的子公司（依 CO_ORDER）
 var SEL_CO = null;        // null = 全部
-var CHAN_MODE = 'cov';    // 導入管道卡的子頁籤：'cov' 場景覆蓋率（預設）／ 'tech' 依技術類型
-var QTR_CO = '';          // 各季累計導入完成度專屬的兩個下拉，只影響那張圖
-var QTR_FUNC = '';
 var TECH_MODE = 'online'; // 技術類型分布疊法：'online' 依上線狀態 ／ 'dim' 依子公司（篩到單一公司時為歸類後的部門）／ 'year' 年度累積上線
 var TECH_YEAR = null;     // 年度累積上線的年度篩選；null＝還沒選過（預設帶上傳當年）、''＝全部年度
 // Roadmap 累積曲線那張圖專屬的篩選（不影響同頁其他圖）；空字串＝全部
 var RD_TECH = '', RD_CO = '', RD_FUNC = '';
+var RP_TECH = '', RP_CO = '', RP_FUNC = '';   // 橫向複製頁「各季上線規劃 × 推動方式」專屬的三個下拉
 var CHARTS = {};          // id -> echarts instance
 var TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
 THIS_Q = qLabel(TODAY.getFullYear(), Math.floor(TODAY.getMonth() / 3) + 1);
@@ -2268,7 +2249,7 @@ function zoomOpt(D, fn) {
 /* 圖表副標用：說明部門別是怎麼歸的、放大後看得到什麼 */
 function dimNote(D) {
   if (D.label !== '部門') return '';
-  return '；部門歸為 ' + D.all.length + ' 大類，' + D.deptN + ' 個原始部門可點標題放大' +
+  return '；部門歸為 8 大類，' + D.deptN + ' 個原始部門可點標題放大' +
     (D.tailN ? '（僅列前 ' + DIM_MAX + ' 名，其餘 ' + D.tailN + ' 個見場景明細）' : '');
 }
 /* 圖表下鑽的共用入口：組出標題、篩出資料列、開彈跳視窗 */
@@ -2404,9 +2385,7 @@ function parseRoster(wb) {
     if (!co || !dept || CO_ORDER.indexOf(co) < 0) continue;
     var k = cmpDept({ co: co, dept: dept });
     (byDept[co] || (byDept[co] = {}))[k] = 1;
-    // 明細頁籤的「歸屬功能」寫的是 7 類（法遵風控），儀表板用的是 8 類（稽核法遵風控），
-    // 不過 funcCol 就會整列對不上，8 大部門別粒度下每家都被誤判成「無此部門」。
-    var f = funcCol(row[iFunc]);
+    var f = norm(row[iFunc]);
     if (f) (byFunc[co] || (byFunc[co] = {}))[f] = 1;
   }
   return Object.keys(byDept).length ? { dept: byDept, func: byFunc } : null;
@@ -2867,6 +2846,13 @@ function renderOverview() {
     el.onclick = function () { kpiDrill(el.dataset.go); };
   });
 
+  /* 兩張分布圖並排，高度取管道熱力圖所需的高度，兩張卡片才會齊高。
+     高度一律以「全部場景」的管道數計算：篩到子公司時管道變少，若跟著縮高度，
+     卡片與圖表會整個跳動，跟看全集團時不是同一個版面。 */
+  var vKeys = sortEntries(tally(d, chanOf)).map(function (e) { return e[0]; }).reverse();
+  var chH = Math.max(320, sortEntries(tally(DATA, chanOf)).length * 34 + 96);
+  $('#ch-tech').style.height = chH + 'px';
+  $('#ch-vendor').style.height = chH + 'px';
 
   /* 技術類型分布：預設按上線狀況畫長條圖，切到「依子公司／部門」就換成熱力圖（見 TECH_MODE） */
   var tCnt = tally(d, 'tech');
@@ -3084,34 +3070,102 @@ function renderOverview() {
       drillDim(Dt, p.data.k, function (r) { return r.tech === t; }, { tech: t }, '　·　' + t);
     }
   });
-  renderChanCard();
+  /* 導入管道（建置方式＋合作廠商合為一軸；M365 就是微軟，直接歸戶） */
+  var vTech = sortTech(Object.keys(tCnt), tCnt);
+  var vMat = {}, vTot = {};
+  vTech.forEach(function (t) { vMat[t] = {}; });
+  vKeys.forEach(function (v) {
+    var g = d.filter(function (r) { return chanOf(r) === v; });
+    vTot[v] = g.length;
+    vTech.forEach(function (t) {
+      vMat[t][v] = g.filter(function (r) { return r.tech === t; }).length;
+    });
+  });
+  // 管道 × 技術類型熱力圖：格子＝該管道在該技術類型的場景數
+  var vmData = [], vmMax = 0;
+  vKeys.forEach(function (v, yi) {
+    vTech.forEach(function (t, xi) {
+      var n = vMat[t][v];
+      if (n) { vmData.push({ value: [xi, yi, n], v: v, t: t }); vmMax = Math.max(vmMax, n); }
+    });
+  });
+  vmData.forEach(function (it) {
+    it.label = { color: it.value[2] / (vmMax || 1) > 0.55 ? '#fff' : C.blueD };
+  });
+  var cVen = chart('ch-vendor', merge(BASE, {
+    grid: { left: 12, right: 20, top: 14, bottom: 6, containLabel: true },
+    tooltip: merge(BASE.tooltip, {
+      trigger: 'item',
+      formatter: function (p) {
+        var v = p.data.v;
+        return '<b>' + v + '</b>　' + p.data.t + '<br/>' + p.value[2] + ' 個場景（占該管道 ' +
+          pct(p.value[2], vTot[v]) + '%、占全體 ' + pct(p.value[2], d.length) + '%）';
+      }
+    }),
+    xAxis: axisX({
+      data: vTech, splitArea: { show: true }, axisLine: { show: false },
+      axisLabel: { color: C.ink2, fontSize: 11, interval: 0, rotate: vTech.length > 5 ? 18 : 0 }
+    }),
+    yAxis: axisX({
+      type: 'category', data: vKeys, splitArea: { show: true }, axisLine: { show: false },
+      // 管道名後面直接掛合計，量體大小一眼看得出來
+      axisLabel: {
+        color: C.ink2, fontSize: 12, fontWeight: 600,
+        formatter: function (v) { return v + '  {n|' + vTot[v] + '}'; },
+        rich: { n: { color: C.ink3, fontSize: 11, fontWeight: 700 } }
+      }
+    }),
+    visualMap: {
+      show: false, min: 0, max: vmMax || 1,
+      inRange: { color: ['#EAF2F8', '#9CC5E2', '#2C7CB8', C.blueD] }
+    },
+    series: [{
+      type: 'heatmap', data: vmData, cursor: 'pointer',
+      label: { show: true, fontSize: 11.5, fontWeight: 700, formatter: function (p) { return p.value[2]; } },
+      itemStyle: { borderColor: '#fff', borderWidth: 2, borderRadius: 4 },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.2)' } }
+    }]
+  }));
+  onChartClick(cVen, 'ch-vendor', function (p) {
+    var v = p.data.v, t = p.data.t;
+    drill('導入管道：' + v + '　·　' + t, '',
+      function (r) { return chanOf(r) === v && r.tech === t; },
+      // 明細的「建置方式／廠商」欄用的就是 chanOf，直接帶條件（不必再用關鍵字搜尋硬湊）
+      merge(blankFilter(), { tech: t, build: v }));
+  });
+  $('#ov-vendor-note').textContent = '合作廠商與建置方式合看（微軟併為 M365 Copilot、程式助手併為 Github Copilot）；' +
+    '格子顏色越深＝該技術類型場景數越多，管道名後為合計';
+
   renderProgTable();
-  renderQtrChart();
+  renderCovTable();
+  renderQtrTable();
   renderFuncTable();
 }
 
-/* 「優先導入／橫向複製」是控管表逐筆標記的欄位，不是算出來的；這裡只是把標記攤成左右兩塊。
-   兩類以外的值（空白或亂填）歸「未標記」，只掛一個場景數欄，不再展開技術類型——
-   為了 7 筆未填的場景多攤 7 欄，整張表會寬到塞不進簡報。 */
+/* 「優先導入／橫向複製」是控管表逐筆標記的欄位，不是算出來的；這裡只是把標記攤成列群。
+   兩類以外的值（空白或亂填）歸「未標記」，而且只有真的出現時才多畫一組，
+   否則八成的公司會多出一整組全是「·」的空列。 */
 var PRI_MAIN = ['優先導入', '橫向複製'];
-function hasUntagged(d) { return d.some(function (r) { return PRI_MAIN.indexOf(r.priority) < 0; }); }
+function priGroups(d) {
+  var g = PRI_MAIN.slice();
+  if (d.some(function (r) { return PRI_MAIN.indexOf(r.priority) < 0; })) g.push('未標記');
+  return g;
+}
 function priIs(p) {
   return p === '未標記'
     ? function (r) { return PRI_MAIN.indexOf(r.priority) < 0; }
     : function (r) { return r.priority === p; };
 }
 
-/* ---------- 總表 1：AI 運用場景導入進度（左半優先導入、右半橫向複製 × 技術類型） ----------
-   儀表板畫正規化後的部門；點標題放大後改畫完整原始部門（表格可捲動，所以不設上限）。
-   一個維度值只佔兩列（已上線／總場景數），兩種推動方式並排——直向疊成四列雖然欄位窄一半，
-   但 10 家子公司就變 40 列，貼進簡報得切成兩頁。 */
+/* ---------- 總表 1：AI 運用場景導入進度（推動方式 × 技術類型） ----------
+   儀表板畫正規化後的部門；點標題放大後改畫完整原始部門（表格可捲動，所以不設上限）。 */
 function renderProgTable() {
   var D = dim();
   progTable(D, D.all, '#ov-prog', false);
   $('#ov-prog-t').innerHTML = 'AI 運用場景導入進度<small>各' + esc(D.label) +
-    '完成度（已上線 ÷ 總場景數），左半為<b>優先導入</b>、右半為<b>橫向複製</b>' +
-    '（取控管表「優先導入／橫向複製」欄之逐筆標記），各分「已上線」與「總場景數」兩列並依<b>技術類型</b>展開' +
-    '　·　點格子可下鑽' + (SEL_CO ? '，點標題可放大展開全部 ' + D.deptN + ' 個部門' : '') + '</small>';
+    '完成度（已上線 ÷ 總場景數），再依<b>推動方式</b>（優先導入／橫向複製，取控管表逐筆標記）分組，' +
+    '每組分「已上線」與「總場景數」兩列並依<b>技術類型</b>展開　·　點格子可下鑽' +
+    (SEL_CO ? '，點標題可放大展開全部 ' + D.deptN + ' 個部門' : '') + '</small>';
   if (SEL_CO) {
     regZoomHtml('ov-prog', $('#ov-prog-t'), function () {
       progTable(D, D.allDepts, '#zoom-html', true);
@@ -3127,81 +3181,74 @@ function progTable(D, keys, sel, zoomed) {
   // 技術類型欄位依 TECH_ORDER 固定排序，「未填」一律押底
   var cnt = tally(d, 'tech');
   var techs = sortTech(Object.keys(cnt), cnt);
-  var untag = hasUntagged(d);
+  var pris = priGroups(d);
   if (!keys.length || !techs.length) {
     $(sel).innerHTML = '<div class="empty" style="height:110px">無可用資料</div>'; return;
   }
 
   var label = zoomed ? '部門' : D.label;
-  /* 固定欄寬塞進版面寬度，不左右捲：扣掉標籤欄／完成度／列標籤／未標記欄後左右對半，
-     每一塊裡「場景數」給 1.5 個技術類型欄的寬度（那欄的數字位數最多）。 */
-  var gw = (100 - (7 + 9.5 + 5.5) - (untag ? 4.5 : 0)) / 2;
-  var nW = (gw * 1.5 / (techs.length + 1.5)).toFixed(3) + '%';
-  var tW = (gw / (techs.length + 1.5)).toFixed(3) + '%';
-  var gCls = function (gi) { return gi ? ' rep' : ' pri'; };
+  /* 固定欄寬塞進版面寬度，不左右捲：先扣掉標籤欄／完成度／推動方式等固定欄，
+     剩下的寬度平均分給技術類型（欄數會隨資料變動，所以用算的不寫死）。 */
+  var restW = 100 - (9 + 11 + 9 + 5.5 + 6);
+  var tW = (restW / techs.length).toFixed(3) + '%';
   var h = '<div class="tbl-wrap fit"><table class="mtx fit prog"><colgroup>' +
-    '<col style="width:7%"/><col style="width:9.5%"/><col style="width:5.5%"/>' +
-    PRI_MAIN.map(function () {
-      return '<col style="width:' + nW + '"/>' +
-        techs.map(function () { return '<col style="width:' + tW + '"/>'; }).join('');
-    }).join('') +
-    (untag ? '<col style="width:4.5%"/>' : '') +
+    '<col style="width:9%"/><col style="width:11%"/><col style="width:9%"/>' +
+    '<col style="width:5.5%"/><col style="width:6%"/>' +
+    techs.map(function () { return '<col style="width:' + tW + '"/>'; }).join('') +
     '</colgroup><thead><tr>' +
     '<th rowspan="2" class="rh">' + esc(label) + '</th>' +
     '<th rowspan="2">完成度<em>已上線 ÷ 總場景數</em></th>' +
+    '<th rowspan="2">推動方式<em>控管表逐筆標記</em></th>' +
     '<th rowspan="2"></th>' +
-    PRI_MAIN.map(function (p, gi) {
-      return '<th colspan="' + (techs.length + 1) + '" class="g sp' + gCls(gi) + '">' + esc(p) +
-        '<em>場景數與技術類型分布</em></th>';
-    }).join('') +
-    (untag ? '<th rowspan="2" class="untag sp">未標記<em>推動方式未填</em></th>' : '') +
-    '</tr><tr>' +
-    PRI_MAIN.map(function (p, gi) {
-      return '<th class="c sp' + gCls(gi) + '">場景數</th>' +
-        techs.map(function (t) { return '<th class="c' + gCls(gi) + '">' + esc(t) + '</th>'; }).join('');
-    }).join('') +
-    '</tr></thead><tbody>';
+    '<th rowspan="2">場景數</th>' +
+    '<th colspan="' + techs.length + '" class="g">技術類型分布</th>' +
+    '</tr><tr>';
+  techs.forEach(function (t, i) {
+    h += '<th class="c' + (i === 0 ? ' sp' : '') + '">' + esc(t) + '</th>';
+  });
+  h += '</tr></thead><tbody>';
 
-  /* 每個維度值兩列：上列＝已上線、下列＝總場景數；維度值與完成度用 rowspan 跨兩列 */
+  /* 每個維度值 ＝ 推動方式組數 × 2 列（上列已上線、下列總場景數）；
+     維度值與整體完成度用 rowspan 跨掉整塊。 */
   var body = function (list, key, cls) {
     var tot = list.length, on = list.filter(function (r) { return r.online; }).length;
     // 合計列的 key 是空字串，一樣掛 data-k（drillDim 把空值當「不限維度值」）
     var k = ' data-k="' + esc(key) + '"';
-    var line = function (isOn) {
-      var t = '<tr class="' + (cls || '') + (isOn ? ' r1' : ' r2') + '">';
-      if (isOn) {
-        t += '<td class="rh" rowspan="2"' + k + '>' + esc(key || '合計') + '</td>' +
-          '<td class="pc" rowspan="2"><b>' + pct(on, tot) + '%</b>' +
-          '<span class="mb"><i style="width:' + pct(on, tot) + '%"></i></span></td>';
-      }
-      t += '<td class="mh">' + (isOn ? '已上線' : '總場景數') + '</td>';
-      var cellOf = function (p) {
-        var pa = ' data-p="' + esc(p) + '"';
-        return function (n, den, attr, extra) {
-          return '<td class="c num' + (extra || '') + (n ? ' hit' : '') + '"' +
-            (n ? k + pa + attr : '') + '>' + (den === 0 ? '·' : fmt(n)) + '</td>';
-        };
+    var span = pris.length * 2;
+    var out = '';
+    pris.forEach(function (p, gi) {
+      var g = list.filter(priIs(p));
+      var gon = g.filter(function (r) { return r.online; }).length;
+      var pa = ' data-p="' + esc(p) + '"';
+      var cell = function (n, of, attr, extra) {
+        return '<td class="c num' + (extra || '') + (n ? ' hit' : '') + '"' +
+          (n ? k + pa + attr : '') + '>' + (of === 0 ? '·' : fmt(n)) + '</td>';
       };
-      PRI_MAIN.forEach(function (p, gi) {
-        var g = list.filter(priIs(p));
-        var gon = g.filter(function (r) { return r.online; }).length;
-        var cell = cellOf(p), gc = gCls(gi), onAttr = isOn ? ' data-on="1"' : '';
-        t += cell(isOn ? gon : g.length, g.length, onAttr, ' sp tot' + gc + (isOn ? ' on' : ''));
-        techs.forEach(function (c) {
+      var line = function (isOn) {
+        var t = '<tr class="' + (cls || '') + (isOn ? ' r1' : ' r2') + '">';
+        if (isOn && gi === 0) {
+          t += '<td class="rh" rowspan="' + span + '"' + k + '>' + esc(key || '合計') + '</td>' +
+            '<td class="pc" rowspan="' + span + '"><b>' + pct(on, tot) + '%</b>' +
+            '<span class="mb"><i style="width:' + pct(on, tot) + '%"></i></span></td>';
+        }
+        if (isOn) {
+          t += '<td class="gh" rowspan="2"' + (g.length ? k + pa : '') + '>' + esc(p) +
+            '<em>' + (g.length ? pct(gon, g.length) + '%' : '—') + '</em></td>';
+        }
+        t += '<td class="mh">' + (isOn ? '已上線' : '總場景數') + '</td>' +
+          cell(isOn ? gon : g.length, g.length, isOn ? ' data-on="1"' : '', isOn ? ' on' : '');
+        techs.forEach(function (c, i) {
           var gt = g.filter(function (r) { return r.tech === c; });
           var gto = gt.filter(function (r) { return r.online; }).length;
-          t += cell(isOn ? gto : gt.length, gt.length, ' data-t="' + esc(c) + '"' + onAttr,
-            gc + (isOn ? ' on' : ''));
+          t += cell(isOn ? gto : gt.length, gt.length,
+            ' data-t="' + esc(c) + '"' + (isOn ? ' data-on="1"' : ''),
+            (i === 0 ? ' sp' : '') + (isOn ? ' on' : ''));
         });
-      });
-      if (untag) {
-        var u = list.filter(priIs('未標記'));
-        t += cellOf('未標記')(isOn ? u.filter(function (r) { return r.online; }).length : u.length,
-          u.length, isOn ? ' data-on="1"' : '', ' sp untag' + (isOn ? ' on' : ''));
-      }
-      return t + '</tr>';
-    };
-    return line(true) + line(false);
+        return t + '</tr>';
+      };
+      out += line(true) + line(false);
+    });
+    return out;
   };
 
   keys.forEach(function (k) {
@@ -3212,7 +3259,7 @@ function progTable(D, keys, sel, zoomed) {
 
   // 放大視窗裡點的是原始部門，drillDim 靠 IN_ZOOM 判斷（原始部門與歸類後的名稱會同名）
   var dr = function (fn) { return function () { IN_ZOOM = !!zoomed; try { fn(); } finally { IN_ZOOM = false; } }; };
-  // 場景數與技術類型格都掛 data-p，同一支處理器就夠（有沒有 data-t 決定要不要再篩技術）
+  // 推動方式那一格、場景數、技術類型格都掛 data-p，同一支處理器就夠（有沒有 data-t 決定要不要再篩技術）
   $$(sel + ' td[data-p]').forEach(function (td) {
     td.onclick = dr(function () {
       var p = td.dataset.p, t = td.dataset.t, on = !!td.dataset.on, inP = priIs(p);
@@ -3231,218 +3278,178 @@ function progTable(D, keys, sel, zoomed) {
 /* ---------- 總表 1b：場景覆蓋率（各導入管道涵蓋的場景數與占比） ----------
    原本掛在導入進度總表右半，一張表 19 欄擠到每欄只剩 ~40px；拆出來獨立一張，
    欄寬夠了才看得出「碩網 71 個」跟「碩網 71%」是兩件事。 */
-/* ---------- 總覽圖 1b：導入管道 ----------
-   兩個子頁籤（CHAN_MODE）畫的是同一張熱力圖，只換 x 軸：預設「依子公司」（篩到單一公司時為依部門），
-   另一個是「依技術類型」。y 軸固定為導入管道，格子＝該管道在該欄的覆蓋場景數（即場景覆蓋率），
-   占比放 tooltip——格子裡塞兩個數字會擠成一團，而且熱度本來就已經是量體的視覺編碼。 */
-function renderChanCard() {
-  var d = rows(), D = dim(), byDim = CHAN_MODE === 'cov';
-  $('#chan-seg-dim').textContent = '依' + D.label;   // 篩到單一公司時 x 軸改列部門
-  var xLabel = byDim ? D.label : '技術類型';
-  $('#chan-btns').innerHTML = '<button class="btn-png" data-chart="ch-vendor" ' +
-    'data-name="導入管道與' + esc(xLabel) + '">下載 PNG</button>';
-  $('#ov-chan-t').innerHTML = '導入管道　·　' + esc(xLabel) +
-    '<small>縱軸為導入管道、橫軸為' + esc(xLabel) + '，格子為該管道涵蓋的場景數（顏色越深數量越多），' +
-    '兩軸標籤後方灰字為該列／該欄的合計；合作廠商與建置方式合看（微軟併為 M365 Copilot、程式助手併為 Github Copilot）' +
-    (byDim ? esc(dimNote(D)) : '') +
-    '　·　滑鼠移入可檢視占該' + esc(xLabel) + '的比率，點格子可下鑽</small>';
-
-  var chans = sortEntries(tally(d, chanOf)).map(function (e) { return e[0]; }).reverse();
-  var mkChan = function (xs, xOf) {
-    var mat = {}, tot = {}, xTot = {};
-    xs.forEach(function (x) { xTot[x] = d.filter(function (r) { return xOf(r) === x; }).length; });
-    chans.forEach(function (v) {
-      var g = d.filter(function (r) { return chanOf(r) === v; });
-      tot[v] = g.length; mat[v] = {};
-      xs.forEach(function (x) { mat[v][x] = g.filter(function (r) { return xOf(r) === x; }).length; });
-    });
-    var data = [], max = 0;
-    chans.forEach(function (v, yi) {
-      xs.forEach(function (x, xi) {
-        var n = mat[v][x];
-        if (n) { data.push({ value: [xi, yi, n], v: v, x: x }); max = Math.max(max, n); }
-      });
-    });
-    /* heatmap 的 label 不吃 callback（顏色、rich 都是），只能逐格指定。
-       格子裡上面是場景數、下面是占該欄的比率——「覆蓋 33 個」跟「覆蓋了該公司一半場景」
-       是兩件事，只給其中一個，看的人一定會自己去換算。深色格子要換白字才看得見。 */
-    data.forEach(function (it) {
-      var dark = it.value[2] / (max || 1) > 0.55;
-      var col = dark ? '#fff' : C.blueD;
-      it.label = {
-        formatter: '{n|' + it.value[2] + '}\n{p|' + pct(it.value[2], xTot[it.x]) + '%}',
-        rich: {
-          n: { color: col, fontSize: 12.5, fontWeight: 700, lineHeight: 15 },
-          p: { color: dark ? 'rgba(255,255,255,.88)' : '#3E6E93', fontSize: 10.5, fontWeight: 700, lineHeight: 13 }
-        }
-      };
-    });
-    return merge(BASE, {
-      grid: { left: 12, right: 20, top: 14, bottom: 6, containLabel: true },
-      tooltip: merge(BASE.tooltip, {
-        trigger: 'item',
-        formatter: function (p) {
-          var n = p.value[2];
-          return '<b>' + esc(p.data.v) + '</b>　' + esc(p.data.x) + '<br/>' + n +
-            ' 個場景（占該' + esc(xLabel) + ' ' + pct(n, xTot[p.data.x]) + '%、占該管道 ' +
-            pct(n, tot[p.data.v]) + '%、占全體 ' + pct(n, d.length) + '%）';
-        }
-      }),
-      xAxis: axisX({
-        data: xs, splitArea: { show: true }, axisLine: { show: false },
-        // 橫軸也掛合計（跟縱軸的管道合計同一種寫法）：格子裡的比率是「占該欄」，
-        // 沒有分母就得自己去別張圖找，兩個維度都標才對得起來
-        axisLabel: {
-          color: C.ink2, fontSize: 11, interval: 0, rotate: xs.length > 5 ? 18 : 0,
-          formatter: function (v) { return v + ' {n|' + (xTot[v] || 0) + '}'; },
-          rich: { n: { color: C.ink3, fontSize: 10, fontWeight: 700 } }
-        }
-      }),
-      yAxis: axisX({
-        type: 'category', data: chans, splitArea: { show: true }, axisLine: { show: false },
-        // 管道名後面直接掛合計，量體大小一眼看得出來
-        axisLabel: {
-          color: C.ink2, fontSize: 12, fontWeight: 600,
-          formatter: function (v) { return v + '  {n|' + tot[v] + '}'; },
-          rich: { n: { color: C.ink3, fontSize: 11, fontWeight: 700 } }
-        }
-      }),
-      visualMap: {
-        show: false, min: 0, max: max || 1,
-        inRange: { color: ['#EAF2F8', '#9CC5E2', '#2C7CB8', C.blueD] }
-      },
-      series: [{
-        type: 'heatmap', data: data, cursor: 'pointer',
-        label: { show: true },   // 內容逐格指定（見上方 data.forEach）
-        itemStyle: { borderColor: '#fff', borderWidth: 2, borderRadius: 4 },
-        emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.2)' } }
-      }]
-    });
-  };
-  var techs = sortTech(Object.keys(tally(d, 'tech')), tally(d, 'tech'));
-  var cChan = chart('ch-vendor', byDim ? mkChan(D.keys, D.of) : mkChan(techs, function (r) { return r.tech; }));
-  if (byDim && SEL_CO) {
-    regZoom('ch-vendor', $('#ov-chan-t'), zoomOpt(D, function () { return mkChan(D.fullAll, D.of); }),
-      D.fullAll.length, 'x');
+function renderCovTable() {
+  var D = dim();
+  covTable(D, D.all, '#ov-cov', false);
+  $('#ov-cov-t').innerHTML = '場景覆蓋率<small>各' + esc(D.label) +
+    '的場景依<b>導入管道</b>歸戶，上列為覆蓋場景數、下列為占該' + esc(D.label) +
+    '總場景數的比率（M365 Copilot 即微軟；技術類型為程式助手者統一為 Github Copilot）　·　點格子可下鑽' +
+    (SEL_CO ? '，點標題可放大展開全部 ' + D.deptN + ' 個部門' : '') + '</small>';
+  if (SEL_CO) {
+    regZoomHtml('ov-cov', $('#ov-cov-t'), function () {
+      covTable(D, D.allDepts, '#zoom-html', true);
+    }, D.deptN);
   } else {
-    delete ZOOM['ch-vendor'];     // 放大仍可用（renderAll 會依 .btn-png 掛上），只是回到當前這張圖
+    unmarkZoom('ov-cov', $('#ov-cov-t'));
   }
-  onChartClick(cChan, 'ch-vendor', function (p) {
-    var v = p.data.v, x = p.data.x;
-    if (byDim) {
-      // 明細的「建置方式／廠商」欄用的就是 chanOf，直接帶條件（不必再用關鍵字搜尋硬湊）
-      drillDim(D, x, function (r) { return chanOf(r) === v; }, { build: v }, '　·　' + v);
-    } else {
-      drill('導入管道：' + v + '　·　' + x, '',
-        function (r) { return chanOf(r) === v && r.tech === x; },
-        merge(blankFilter(), { tech: x, build: v }));
-    }
+}
+function covTable(D, keys, sel, zoomed) {
+  var d = rows();
+  var of = zoomed ? deptOf : D.of;
+  if (!keys.length) {
+    $(sel).innerHTML = '<div class="empty" style="height:110px">無可用資料</div>'; return;
+  }
+  var label = zoomed ? '部門' : D.label;
+  var cW = ((100 - (12 + 9 + 9)) / COVS.length).toFixed(3) + '%';
+  var h = '<div class="tbl-wrap fit"><table class="mtx fit prog"><colgroup>' +
+    '<col style="width:12%"/><col style="width:9%"/><col style="width:9%"/>' +
+    COVS.map(function () { return '<col style="width:' + cW + '"/>'; }).join('') +
+    '</colgroup><thead><tr>' +
+    '<th rowspan="2" class="rh">' + esc(label) + '</th>' +
+    '<th rowspan="2" class="cov">全部場景</th>' +
+    '<th rowspan="2" class="cov"></th>' +
+    '<th colspan="' + COVS.length + '" class="g cov">導入管道<em>覆蓋數 / 占該' + esc(label) + '總場景數</em></th>' +
+    '</tr><tr>';
+  COVS.forEach(function (c, i) {
+    h += '<th class="c cov' + (i === 0 ? ' sp' : '') + '">' + esc(c) + '</th>';
+  });
+  h += '</tr></thead><tbody>';
+
+  var body = function (list, key, cls) {
+    var tot = list.length;
+    var k = ' data-k="' + esc(key) + '"';
+    var line = function (isOn) {
+      var t = '<tr class="' + (cls || '') + (isOn ? ' r1' : ' r2') + '">';
+      if (isOn) {
+        t += '<td class="rh" rowspan="2"' + k + '>' + esc(key || '合計') + '</td>' +
+          '<td class="c num cov tot' + (tot ? ' hit' : '') + '" rowspan="2"' +
+          (tot ? k : '') + '>' + fmt(tot) + '</td>';
+      }
+      t += '<td class="mh cov">' + (isOn ? '覆蓋數' : '占比') + '</td>';
+      COVS.forEach(function (c, i) {
+        var n = list.filter(function (r) { return covOf(r) === c; }).length;
+        t += '<td class="c num cov' + (i === 0 ? ' sp' : '') + (isOn ? '' : ' rate') + (n ? ' hit' : '') + '"' +
+          (n ? k + ' data-cov="' + esc(c) + '"' : '') + '>' +
+          (n ? (isOn ? fmt(n) : pct(n, tot) + '%') : '·') + '</td>';
+      });
+      return t + '</tr>';
+    };
+    return line(true) + line(false);
+  };
+  keys.forEach(function (k) {
+    h += body(d.filter(function (r) { return of(r) === k; }), k);
+  });
+  h += '</tbody><tfoot>' + body(d, '', 'sum') + '</tfoot></table></div>';
+  $(sel).innerHTML = h;
+
+  var dr = function (fn) { return function () { IN_ZOOM = !!zoomed; try { fn(); } finally { IN_ZOOM = false; } }; };
+  $$(sel + ' td[data-cov]').forEach(function (td) {
+    td.onclick = dr(function () {
+      var c = td.dataset.cov;
+      drillDim(D, td.dataset.k, function (r) { return covOf(r) === c; }, {}, '　·　' + c);
+    });
+  });
+  $$(sel + ' td[data-k]:not([data-cov])').forEach(function (td) {
+    td.onclick = dr(function () { drillDim(D, td.dataset.k, null, {}, ''); });
   });
 }
 
-/* ---------- 總覽圖 1c：各季累計導入完成度（技術類型） ----------
-   對應控管表「子公司 AI 推動完成度」頁籤。該頁籤是 公司 × 技術類型 × 季 的三維表，
-   半版寬度放不下三個維度，這裡固定畫「目前篩選範圍」的 技術類型 × 季：
-   頂欄選到單一子公司時整張圖就是該公司的完成度，等同原頁籤的一個區塊。
-   依「預計/實際上線」季別累計 ÷ 該技術類型總場景數 ＝ 完成度，是規劃完成度不是已上線比率。 */
-function renderQtrChart() {
-  var all = rows();
-  /* 這張圖專屬的兩個下拉（子公司 × 部門別），可疊加、只影響這張圖；
-     x 軸的季別取自未篩選的資料，切換選項時軸不會跳動（跟 Roadmap 的累積曲線同一套作法）。
-     頂欄篩到單一公司時，子公司那格鎖住——頂欄才是主導者。 */
-  var qs = {};
-  all.forEach(function (r) { if (r.dueY && r.dueQ) qs[qLabel(r.dueY, r.dueQ)] = 1; });
-  var keys = Object.keys(qs).sort();
-  var qFuncs = FUNCS.map(function (f) { return f.k; })
-    .filter(function (k) { return all.some(function (r) { return r.func === k; }); });
-  if (SEL_CO) QTR_CO = '';
-  if (QTR_CO && COS.indexOf(QTR_CO) < 0) QTR_CO = '';
-  if (QTR_FUNC && qFuncs.indexOf(QTR_FUNC) < 0) QTR_FUNC = '';
-  var qCo = SEL_CO || QTR_CO;
-  $('#qtr-co').disabled = !!SEL_CO;
-  $('#qtr-co').innerHTML = (SEL_CO ? '' : optHtml('', '全部子公司', QTR_CO)) +
-    (SEL_CO ? [SEL_CO] : COS).map(function (c) { return optHtml(c, c, qCo); }).join('');
-  $('#qtr-func').innerHTML = optHtml('', '全部部門別', QTR_FUNC) +
-    qFuncs.map(function (k) { return optHtml(k, k, QTR_FUNC); }).join('');
-  var d = all.filter(function (r) {
-    return (!QTR_CO || r.co === QTR_CO) && (!QTR_FUNC || r.func === QTR_FUNC);
-  });
-  var noQ = d.filter(function (r) { return !(r.dueY && r.dueQ); }).length;
-  var scope = [qCo || '全集團', QTR_FUNC].filter(Boolean).join('　·　');
-  /* 空狀態與圖之間切換要先 dispose：直接改 innerHTML 會把 canvas 拔掉、
-     但 CHARTS 裡的實例還在，chart() 判斷「沒被 dispose」就繼續沿用，下一次畫出來是一片空白。 */
-  var swap = function (html) {
-    var ins = CHARTS['ch-qtr'];
-    if (ins && !ins.isDisposed()) { ins.dispose(); delete CHARTS['ch-qtr']; }
-    $('#ch-qtr').innerHTML = html;
-  };
-  if (!keys.length || !d.length) {
-    $('#ov-qtr-t').innerHTML = '各季累計導入完成度　·　技術類型';
-    swap('<div class="empty" style="height:260px">' +
-      (d.length ? '尚無場景填報上線時程' : '此範圍無場景') + '</div>');
-    return;
+/* ---------- 總表 1c：各季累計導入完成度（維度 × 技術類型） ----------
+   對應控管表「子公司 AI 推動完成度」頁籤：以「預計/實際上線」季別累計，
+   累計至該季 ÷ 該技術類型總場景數 ＝ 完成度。這是「規劃完成度」不是「已上線」——
+   兩者混寫會讓 2027 的 100% 看起來像已經上線了，所以副標與 tooltip 都明講。 */
+function renderQtrTable() {
+  var D = dim();
+  qtrTable(D, D.all, '#ov-qtr', false);
+  $('#ov-qtr-t').innerHTML = '各季累計導入完成度　·　技術類型<small>每' + esc(D.label) +
+    '按<b>技術類型</b>列出，格子為累計至該季的場景數與完成度（累計 ÷ 該列總場景數），' +
+    '依「預計/實際上線」季別累計，故為<b>規劃</b>完成度而非已上線；顏色越深＝完成度越高　·　點格子可下鑽' +
+    (SEL_CO ? '，點標題可放大展開全部 ' + D.deptN + ' 個部門' : '') + '</small>';
+  if (SEL_CO) {
+    regZoomHtml('ov-qtr', $('#ov-qtr-t'), function () {
+      qtrTable(D, D.allDepts, '#zoom-html', true);
+    }, D.deptN);
+  } else {
+    unmarkZoom('ov-qtr', $('#ov-qtr-t'));
   }
-  if ($('#ch-qtr').firstChild && $('#ch-qtr').querySelector('.empty')) swap('');
-  $('#ov-qtr-t').innerHTML = '各季累計導入完成度　·　技術類型<small>' + esc(scope) +
-    '　·　一條線一個技術類型，縱軸為累計至該季的完成度：' +
-    '分子為「預計/實際上線」季別 ≦ 該季的場景數、分母為該技術類型的總場景數，' +
-    '橘色虛線為本季度 ' + esc(THIS_Q) + '。此為控管表<b>規劃</b>的鋪排節奏，<b>非實際上線比率</b>' +
-    (noQ ? '　·　另有 <b class="warn">' + fmt(noQ) + '</b> 個場景未填上線時程，不計入任何季別' : '') +
-    '　·　滑鼠移入可一次檢視各技術類型的累計筆數與總場景數，點擊任一點可下鑽</small>';
-  var cnt = tally(d, 'tech');
-  var techs = sortTech(Object.keys(cnt), cnt);
-  var inCum = function (r, q) { return r.dueY && r.dueQ && qLabel(r.dueY, r.dueQ) <= q; };
-  var cum = {};
-  techs.forEach(function (t) {
-    var g = d.filter(function (r) { return r.tech === t; });
-    cum[t] = keys.map(function (q) {
-      return g.filter(function (r) { return inCum(r, q); }).length;
+}
+function qtrTable(D, keys, sel, zoomed) {
+  var d = rows();
+  var of = zoomed ? deptOf : D.of;
+  var qs = {};
+  d.forEach(function (r) { if (r.dueY && r.dueQ) qs[qLabel(r.dueY, r.dueQ)] = 1; });
+  var qk = Object.keys(qs).sort();
+  var noQ = d.some(function (r) { return !(r.dueY && r.dueQ); });
+  if (!keys.length || !qk.length) {
+    $(sel).innerHTML = '<div class="empty" style="height:110px">無可用資料（尚無場景填報上線時程）</div>'; return;
+  }
+  var label = zoomed ? '部門' : D.label;
+  var h = '<div class="tbl-wrap qtr-wrap"><table class="mtx qtr"><thead><tr>' +
+    '<th class="rh">' + esc(label) + '</th><th class="rh2">技術類型</th><th>場景數</th>' +
+    qk.map(function (q) {
+      return '<th class="c' + (q <= THIS_Q ? ' past' : '') + '">' + esc(q) + '</th>';
+    }).join('') +
+    (noQ ? '<th class="c sp">未排定</th>' : '') +
+    '</tr></thead><tbody>';
+
+  var block = function (list, key, cls) {
+    var cnt = tally(list, 'tech');
+    var techs = sortTech(Object.keys(cnt), cnt);
+    if (!techs.length) return '';
+    var out = '';
+    techs.forEach(function (t, ti) {
+      var g = list.filter(function (r) { return r.tech === t; });
+      var k = ' data-k="' + esc(key) + '" data-t="' + esc(t) + '"';
+      out += '<tr class="' + (cls || '') + (ti === 0 ? ' gtop' : '') + '">';
+      if (ti === 0) {
+        out += '<td class="rh" rowspan="' + techs.length + '"' + ' data-k="' + esc(key) + '">' +
+          esc(key || '合計') + '</td>';
+      }
+      out += '<td class="rh2 hit"' + k + '>' + esc(t) + '</td>' +
+        '<td class="c num tot hit"' + k + '>' + fmt(g.length) + '</td>';
+      qk.forEach(function (q) {
+        var n = g.filter(function (r) { return r.dueY && r.dueQ && qLabel(r.dueY, r.dueQ) <= q; }).length;
+        var p = g.length ? Math.round(n / g.length * 1000) / 10 : 0;
+        // 熱度用完成度而不是場景數：場景數大的公司整列都是深色，看不出誰推得快
+        var bg = n ? ' style="background:rgba(47,107,163,' + (0.06 + p / 100 * 0.42).toFixed(3) + ')' +
+          (p >= 78 ? ';color:#fff' : '') + '"' : '';
+        out += '<td class="c num qc' + (n ? ' hit' : '') + '"' + (n ? k + ' data-q="' + esc(q) + '"' : '') +
+          bg + '>' + (n ? '<b>' + fmt(n) + '</b><em>' + p + '%</em>' : '·') + '</td>';
+      });
+      if (noQ) {
+        var nn = g.filter(function (r) { return !(r.dueY && r.dueQ); }).length;
+        out += '<td class="c num sp' + (nn ? ' hit warn' : '') + '"' + (nn ? k + ' data-q=""' : '') + '>' +
+          (nn ? fmt(nn) : '·') + '</td>';
+      }
+      out += '</tr>';
+    });
+    return out;
+  };
+
+  keys.forEach(function (k) {
+    h += block(d.filter(function (r) { return of(r) === k; }), k);
+  });
+  h += '</tbody><tfoot>' + block(d, '', 'sum') + '</tfoot></table></div>';
+  $(sel).innerHTML = h;
+
+  var dr = function (fn) { return function () { IN_ZOOM = !!zoomed; try { fn(); } finally { IN_ZOOM = false; } }; };
+  $$(sel + ' td[data-t]').forEach(function (td) {
+    td.onclick = dr(function () {
+      var t = td.dataset.t, q = td.dataset.q;
+      if (q === undefined) {
+        drillDim(D, td.dataset.k, function (r) { return r.tech === t; }, { tech: t }, '　·　' + t);
+      } else if (q === '') {
+        drillDim(D, td.dataset.k, function (r) { return r.tech === t && !(r.dueY && r.dueQ); },
+          { tech: t }, '　·　' + t + '　·　未排定上線時程');
+      } else {
+        drillDim(D, td.dataset.k,
+          function (r) { return r.tech === t && r.dueY && r.dueQ && qLabel(r.dueY, r.dueQ) <= q; },
+          { tech: t }, '　·　' + t + '　·　累計至 ' + q);
+      }
     });
   });
-  var cQtr = chart('ch-qtr', merge(BASE, {
-    grid: { left: 34, right: 24, top: 38, bottom: 6, containLabel: true },
-    /* 圖例只放類別名稱：半版寬度下七個中文類別已經要分頁捲動，再接總場景數會被截掉；
-       各類的「累計 / 總數」放在 tooltip，一次看得到七條線的當季數字 */
-    legend: merge(BASE.legend, { top: 4, type: 'scroll' }),
-    tooltip: merge(BASE.tooltip, {
-      trigger: 'axis', axisPointer: { type: 'shadow' },
-      formatter: function (ps) {
-        var i = ps[0].dataIndex;
-        var h = '<b>累計規劃上線至 ' + ps[0].axisValue + '</b>（點擊可查看累計場景）';
-        techs.forEach(function (t, ti) {
-          h += '<br/><span style="color:' + CAT[ti % CAT.length] + '">●</span> ' + esc(t) + ' ' +
-            cum[t][i] + ' / ' + cnt[t] + '（' + pct(cum[t][i], cnt[t]) + '%）';
-        });
-        return h;
-      }
-    }),
-    xAxis: axisX({ data: keys, boundaryGap: false, axisLabel: qAxisLabel() }),
-    // 不掛軸名稱：半版寬度下七類的圖例會一路排到左上角，跟「累計完成度」四個字疊在一起；
-    // 刻度本來就標了 %，副標也寫明是完成度
-    yAxis: axisY({
-      min: 0, max: 100,
-      axisLabel: { formatter: '{value}%', color: C.ink3, fontSize: 11 }
-    }),
-    series: techs.map(function (t, ti) {
-      var col = CAT[ti % CAT.length];
-      return {
-        name: t, type: 'line', smooth: true, symbol: 'circle', symbolSize: 5, cursor: 'pointer',
-        lineStyle: { color: col, width: 2.2 }, itemStyle: { color: col },
-        data: keys.map(function (q, i) {
-          return cnt[t] ? Math.round(cum[t][i] / cnt[t] * 1000) / 10 : 0;
-        }),
-        markLine: ti === 0 ? qMarkLine(keys) : undefined
-      };
-    })
-  }));
-  onChartClick(cQtr, 'ch-qtr', function (p) {
-    var t = p.seriesName, q = p.name;
-    drill('技術類型：' + t + '　·　累計規劃上線至 ' + q, scope + '　·　上線季別 ≦ ' + q,
-      function (r) {
-        return r.tech === t && (!QTR_CO || r.co === QTR_CO) && (!QTR_FUNC || r.func === QTR_FUNC) &&
-          inCum(r, q);
-      },
-      merge(blankFilter(), { tech: t, func: QTR_FUNC }));
+  $$(sel + ' td.rh[data-k]').forEach(function (td) {
+    td.onclick = dr(function () { drillDim(D, td.dataset.k, null, {}, ''); });
   });
 }
 
@@ -3452,9 +3459,7 @@ function renderFuncTable() {
   var keys = SEL_CO ? [SEL_CO] : COS;
   /* 一格 ＝ 一家公司 × 一個部門：該群場景的人力相加後四捨五入到小數點第一位。
      每一筆都是 0.1 的整數倍，所以合計不論從場景加還是把格子加都一樣，橫豎都對得起來。 */
-  /* 控管表沒有這個部門別的資料就整欄不畫（例如沒人填「全公司」時就不留那三欄空格） */
-  var FL = FUNCS.filter(function (f) { return d.some(function (r) { return r.func === f.k; }); });
-  var FK = FL.map(function (f) { return f.k; });
+  var FK = FUNCS.map(function (f) { return f.k; });
   var coRows = {};
   keys.forEach(function (k) { coRows[k] = d.filter(function (r) { return r.co === k; }); });
   var cellOf = function (k, f) {
@@ -3485,7 +3490,7 @@ function renderFuncTable() {
     (SEL_CO ? '（已篩選至 ' + esc(SEL_CO) + '）' : '') + '。' +
     '人力<b>逐場景四捨五入至小數點第一位後相加</b>，<b>AI 約當人力 ＝ 導入前 − 導入後</b>，' +
     '每一格、每一列、合計列都成立。' +
-    '部門別<b>直接讀控管表的 Function 欄</b>（該欄未填才回退「集團各部門Funtion分類明細」對照），本表共 ' + FL.length + ' 大類（無資料者不列），' +
+    '部門別<b>直接讀控管表的 Function 欄</b>（該欄未填才回退「集團各部門Funtion分類明細」對照），共 8 大類，' +
     (SEL_CO ? '篩到單一公司時公司列只剩一行，改成一部門一列；' : '') +
     '可點「AI 約當人力」格子核對場景' +
     '</small>';
@@ -3538,26 +3543,26 @@ function renderFuncTable() {
   }
 
   var h = '<div class="tbl-wrap fit"><table class="mtx fit"><thead><tr><th rowspan="4" class="rh">公司</th>';
-  FL.forEach(function (f) { h += '<th colspan="3" class="g">' + esc(f.k) + '</th>'; });
+  FUNCS.forEach(function (f) { h += '<th colspan="3" class="g">' + esc(f.k) + '</th>'; });
   h += '<th colspan="3" class="g tot">合計</th></tr><tr>';
-  FL.forEach(function (f) { h += '<th colspan="3" class="hint">' + esc(f.hint) + '</th>'; });
+  FUNCS.forEach(function (f) { h += '<th colspan="3" class="hint">' + esc(f.hint) + '</th>'; });
   h += '<th colspan="3" class="hint">全部門</th></tr><tr>';
   // 場景數列：口徑跟底下的人力數字一致（只算已填報導入前後工時的場景）
-  FL.concat([{ k: '' }]).forEach(function (f) {
+  FUNCS.concat([{ k: '' }]).forEach(function (f) {
     var v = aggFte(keys, f.k);
     h += '<th colspan="2" class="hint">場景數</th>' +
       '<th class="c hint' + (v ? ' hit' : '') + '"' + (v ? ' data-nf="' + esc(f.k) + '"' : '') + '>' +
       (v ? fmt(v.n) : '-') + '</th>';
   });
   h += '</tr><tr>';
-  FL.concat([{ k: '合計' }]).forEach(function (f, i) {
+  FUNCS.concat([{ k: '合計' }]).forEach(function (f, i) {
     h += '<th class="c sp">導入前</th><th class="c">導入後</th><th class="c hl">AI 約當人力</th>';
   });
   h += '</tr></thead><tbody>';
 
   var maxS = 0;
   keys.forEach(function (k) {
-    FL.forEach(function (f) {
+    FUNCS.forEach(function (f) {
       var v = aggFte([k], f.k);
       if (v && v.s > maxS) maxS = v.s;
     });
@@ -3565,7 +3570,7 @@ function renderFuncTable() {
 
   var body = function (ks, key, cls) {
     var t = '<tr class="' + (cls || '') + '"><td class="rh">' + esc(key || '集團合計') + '</td>';
-    FL.concat([{ k: '' }]).forEach(function (f) {
+    FUNCS.concat([{ k: '' }]).forEach(function (f) {
       var v = aggFte(ks, f.k);
       if (!v) { t += '<td class="c sp">-</td><td class="c">-</td><td class="c hl">-</td>'; return; }
       var bg = maxS > 0 && f.k ? ' style="background:rgba(242,111,40,' + (0.06 + 0.30 * (v.s / maxS)) + ')"' : '';
@@ -4155,6 +4160,36 @@ function onlineCell(r) {
     esc(r.onlineRaw || '未填') + '</span>' +
     (r.mismatch ? '<span class="t-excl">不計入</span>' : '') + '</td>';
 }
+/* 跨列異常：同一個場景（公司 × 場景名）裡，被標成「優先導入」的部署，
+   預計上線季反而晚於同場景「橫向複製」的部署——先導的比跟進的還慢，導入屬性標反了或時程排錯。
+   這條規則要看整組才判得出來，所以不在 dataFlags（逐列）裡，改在讀完檔後補算。 */
+var LAG_FLAG = '優先導入進度落後';
+function flagLaggingPriority() {
+  DATA.forEach(function (r) {
+    r.flags = r.flags.filter(function (f) { return f.k !== LAG_FLAG; });
+  });
+  var g = {};
+  DATA.forEach(function (r) {
+    var id = r.co + '｜' + r.sceneKey;
+    (g[id] || (g[id] = [])).push(r);
+  });
+  Object.keys(g).forEach(function (id) {
+    var v = g[id];
+    var rep = v.filter(function (r) { return r.priority === '橫向複製' && r.dueEnd; });
+    if (!rep.length) return;
+    var first = rep.reduce(function (a, b) { return a.dueEnd <= b.dueEnd ? a : b; });
+    v.forEach(function (r) {
+      if (r.priority !== '優先導入' || !r.dueEnd || r.dueEnd <= first.dueEnd) return;
+      r.flags.push({
+        k: LAG_FLAG,
+        t: '同一場景「' + r.scene + '」裡，本列標為優先導入、預計上線 ' + (r.dueRaw || d2s(r.dueEnd)) +
+          '，但標為橫向複製的「' + first.co + '｜' + (first.dept || '未填') + '」預計上線 ' +
+          (first.dueRaw || d2s(first.dueEnd)) + '，比本列更早；請確認導入屬性或時程是否填反'
+      });
+    });
+  });
+  DATA.forEach(function (r) { r.anomaly = r.flags.length > 0; });
+}
 /* 異常嚴重度：lv1（紅）＝數字本身錯了，會污染效益／人力合計；
    lv2（橘）＝填報前後不一致，統計還算得出來，但要跟填報單位確認。
    「上線狀態矛盾」列 lv1：它直接把場景從「已上線」扣掉，儀表板每一張圖的上線數字都會偏低，
@@ -4180,7 +4215,7 @@ var ANOM_HINT = {
 /* 異常分類：依「填錯哪一區塊的欄位」分群，同一群內再照嚴重度與筆數排。
    分群是給填報單位看的——同一類異常通常回同一個人、改同一批欄位。 */
 var ANOM_CATS = [
-  { k: '上線狀態與時程', ks: ['上線狀態矛盾', '已上線無時程', '已上線但時程在未來'] },
+  { k: '上線狀態與時程', ks: ['上線狀態矛盾', '已上線無時程', '已上線但時程在未來', '優先導入進度落後'] },
   { k: '人力與工時計算', ks: ['效益為負', '零效益', '工時只填一邊', '導入後未填當成 0', '每人工時破表', '投入人數 > 部門人數'] },
   { k: '使用情形填報', ks: ['未上線卻填使用率', '使用率為 0', '使用工時超過導入前'] }
 ];
@@ -4530,6 +4565,92 @@ function renderReplicate() {
       { priority: p.seriesName }, '　·　' + p.seriesName);
   });
 
+  /* ---------- 推動方式 × 上線時程 ----------
+     兩組柱＝各季量體，兩條累積線的水平落差＝橫向複製比優先導入晚幾季，
+     這頁最常被問的就是「跟進的到底落後多久」，用同一張圖直接讀出來。 */
+  /* 三個下拉（技術類型 × 子公司 × 部門別）可疊加，只影響這張圖；
+     x 軸的季別仍取自未篩選的資料，切換選項時軸不會跳動。頂欄篩到單一公司時，子公司那格鎖住。 */
+  var pTech = sortTech(Object.keys(tally(d, 'tech')), tally(d, 'tech'));
+  if (pTech.indexOf(RP_TECH) < 0) RP_TECH = '';
+  var pFuncs = FUNCS.map(function (f) { return f.k; })
+    .filter(function (k) { return d.some(function (r) { return r.func === k; }); });
+  if (SEL_CO) RP_CO = '';                                  // 頂欄篩選才是主導者
+  if (RP_CO && COS.indexOf(RP_CO) < 0) RP_CO = '';
+  if (RP_FUNC && pFuncs.indexOf(RP_FUNC) < 0) RP_FUNC = '';
+  $('#rp-tech').innerHTML = optHtml('', '全部技術類型', RP_TECH) +
+    pTech.map(function (t) { return optHtml(t, t, RP_TECH); }).join('');
+  $('#rp-co').disabled = !!SEL_CO;
+  $('#rp-co').innerHTML = (SEL_CO ? '' : optHtml('', '全部子公司', RP_CO)) +
+    (SEL_CO ? [SEL_CO] : COS).map(function (c) { return optHtml(c, c, RP_CO); }).join('');
+  $('#rp-func').innerHTML = optHtml('', '全部部門別', RP_FUNC) +
+    pFuncs.map(function (k) { return optHtml(k, k, RP_FUNC); }).join('');
+  var rpPred = function (r) {
+    return (!RP_TECH || r.tech === RP_TECH) && (!RP_CO || r.co === RP_CO) &&
+      (!RP_FUNC || r.func === RP_FUNC);
+  };
+  var dp = d.filter(rpPred);
+  var rpScope = [(SEL_CO || RP_CO) || '全集團', RP_FUNC, RP_TECH].filter(Boolean).join('　·　');
+
+  var rpQ = {};
+  d.forEach(function (r) { if (pri.indexOf(r.priority) >= 0 && r.dueY && r.dueQ) rpQ[qLabel(r.dueY, r.dueQ)] = 1; });
+  var rpKeys = Object.keys(rpQ).sort();
+  var rpN = pri.map(function (p) {
+    return rpKeys.map(function (q) {
+      return dp.filter(function (r) { return r.priority === p && qLabel(r.dueY, r.dueQ) === q; }).length;
+    });
+  });
+  var rpCum = rpN.map(function (a) { var s = 0; return a.map(function (v) { s += v; return s; }); });
+  // 未填時程的不畫進來，但要講出有幾個，否則柱子加總對不上上面那張堆疊柱
+  var rpNoSch = pri.map(function (p) {
+    return dp.filter(function (r) { return r.priority === p && !(r.dueY && r.dueQ); }).length;
+  });
+  $('#rp-rd-note').textContent = rpScope + '　·　柱＝該季場景數（左軸），線＝累積（右軸）' +
+    '　·　未填時程未計入：優先導入 ' + fmt(rpNoSch[0]) + ' 個、橫向複製 ' + fmt(rpNoSch[1]) + ' 個';
+  var rpCol = [C.blue, C.gold], rpLine = [C.blueD, C.goldD];
+  var cRpRd = chart('ch-rp-rd', merge(BASE, {
+    grid: { left: 30, right: 30, top: 42, bottom: 8, containLabel: true },
+    legend: merge(BASE.legend, { top: 4 }),
+    tooltip: merge(BASE.tooltip, {
+      trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: function (p) {
+        var i = p[0].dataIndex;
+        return '<b>' + p[0].axisValue + '</b>（點柱可查看該季場景）' +
+          pri.map(function (x, k) {
+            return '<br/><span style="color:' + rpCol[k] + '">●</span> ' + x + '　該季 ' + rpN[k][i] +
+              '　<span style="color:' + C.ink3 + '">累積 ' + rpCum[k][i] + '</span>';
+          }).join('');
+      }
+    }),
+    xAxis: axisX({ data: rpKeys, axisLabel: qAxisLabel(rpKeys.length > 9 ? { rotate: 32 } : null) }),
+    yAxis: [
+      axisY({ name: '該季場景數', nameTextStyle: { color: C.ink3, fontSize: 11, align: 'left' } }),
+      axisY({
+        name: '累積場景數', position: 'right', splitLine: { show: false },
+        nameTextStyle: { color: C.ink3, fontSize: 11, align: 'right' }
+      })
+    ],
+    series: pri.map(function (p, i) {
+      return {
+        name: p, type: 'bar', barWidth: '32%', barMaxWidth: 26, cursor: 'pointer',
+        data: rpN[i], itemStyle: { color: rpCol[i], borderRadius: [3, 3, 0, 0] }
+      };
+    }).concat(pri.map(function (p, i) {
+      return {
+        name: p + ' 累積', type: 'line', yAxisIndex: 1, data: rpCum[i], smooth: true,
+        symbol: 'circle', symbolSize: 6,
+        lineStyle: { color: rpLine[i], width: 2.5, type: i ? 'dashed' : 'solid' },
+        itemStyle: { color: rpLine[i], borderColor: '#fff', borderWidth: 2 },
+        markLine: i ? undefined : qMarkLine(rpKeys)
+      };
+    }))
+  }));
+  onChartClick(cRpRd, 'ch-rp-rd', function (p) {
+    if (p.seriesType !== 'bar') return;
+    drill(p.seriesName + '　·　' + p.name, rpScope + '　·　該季該推動方式之場景',
+      function (r) { return rpPred(r) && r.priority === p.seriesName && qLabel(r.dueY, r.dueQ) === p.name; },
+      merge(blankFilter(), { priority: p.seriesName, quarter: p.name, tech: RP_TECH, func: RP_FUNC }));
+  });
+
   /* 優先導入的上線率 vs 橫向複製 */
   var mk = function (p) {
     var g = d.filter(function (r) { return r.priority === p; });
@@ -4537,8 +4658,7 @@ function renderReplicate() {
   };
   var a = mk('優先導入'), b = mk('橫向複製');
   $('#rp-rate').innerHTML =
-    // 藍＝優先導入、金＝橫向複製，與上方的 ch-pri 堆疊柱及總覽導入進度總表同一套
-    rate('優先導入 上線率', a.on, a.n, C.blue) + rate('橫向複製 上線率', b.on, b.n, C.goldD);
+    rate('優先導入 上線率', a.on, a.n, C.orange) + rate('橫向複製 上線率', b.on, b.n, C.blue);
 
   /* ---------- 橫向複製地圖 ----------
      橫向複製不是算出來的：Excel「優先導入／橫向複製」欄逐筆標記，這裡只是把標記為
@@ -5465,7 +5585,7 @@ function renderBenefit() {
       list.map(function (x) { return opt(x.v, x.t, BN_DEPT); }).join('') + '</optgroup>' : '';
   };
   dpSel.innerHTML = opt('', pCo ? '全公司合計' : '全部部門（依部門別）', BN_DEPT) +
-    grp('依部門別（' + fnDps.length + ' 大類）', fnDps) + grp(pCo ? '依原始部門' : '', rawDps);
+    grp('依部門別（8 大類）', fnDps) + grp(pCo ? '依原始部門' : '', rawDps);
 
   var unitName, uOf;
   var fk = BN_DEPT.indexOf('fn:') === 0 ? BN_DEPT.slice(3) : '';
@@ -5650,17 +5770,27 @@ function fillSelect(id, vals, cur) {
     return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>';
   }).join('');
 }
+/* 選項一律取自「頂欄篩選後」的範圍：篩到投信就不該出現數位金融事業處。
+   選過的值若不在新範圍內就一併清掉，否則下拉顯示「全部」但實際仍在篩、明細會空一片。 */
 function initDetailFilters() {
+  var d = rows();
   var uniq = function (f) {
-    var m = {}; DATA.forEach(function (r) { if (r[f]) m[r[f]] = 1; });
+    var m = {}; d.forEach(function (r) { if (r[f]) m[r[f]] = 1; });
     return Object.keys(m).sort();
   };
+  var put = function (id, key, vals) {
+    if (FILTER[key] && vals.indexOf(FILTER[key]) < 0) FILTER[key] = '';
+    fillSelect(id, vals, FILTER[key]);
+  };
   // 部門：明細表一律用 Excel 原始名稱（圖表才做部門正規化），依場景數多寡排序
-  fillSelect('#f-dept', sortEntries(tally(DATA, deptOf)).map(function (e) { return e[0]; }), FILTER.dept);
-  fillSelect('#f-tech', sortTech(uniq('tech')), FILTER.tech);
-  fillSelect('#f-status', STATUS_ORDER.filter(function (s) { return DATA.some(function (r) { return r.status === s; }); })
-    .concat(uniq('status').filter(function (s) { return STATUS_ORDER.indexOf(s) < 0; })), FILTER.status);
-  fillSelect('#f-build', sortEntries(tally(DATA, chanOf)).map(function (e) { return e[0]; }), FILTER.build);
+  put('#f-dept', 'dept', sortEntries(tally(d, deptOf)).map(function (e) { return e[0]; }));
+  put('#f-tech', 'tech', sortTech(uniq('tech')));
+  put('#f-status', 'status', STATUS_ORDER.filter(function (s) { return d.some(function (r) { return r.status === s; }); })
+    .concat(uniq('status').filter(function (s) { return STATUS_ORDER.indexOf(s) < 0; })));
+  put('#f-build', 'build', sortEntries(tally(d, chanOf)).map(function (e) { return e[0]; }));
+  // 快速標記／部門標籤同理：範圍內沒有的分類留著只會篩出空表
+  if (FILTER.flag && !d.some(function (r) { return matchFlag(r, FILTER.flag); })) FILTER.flag = '';
+  if (FILTER.func && !d.some(function (r) { return r.func === FILTER.func; })) FILTER.func = '';
 }
 /* 「快速標記」的單一判定來源，圖表與明細表共用 */
 function matchFlag(r, flag) {
@@ -5958,19 +6088,17 @@ function showRows(opts) {
     });
     var miss = Math.max(nF, nS);
     var h = '<table class="tbl"><thead>' +
-      '<tr class="tbl-sum"><td colspan="9">合計　' + fmt(list.length) + ' 個場景' +
+      '<tr class="tbl-sum"><td colspan="8">合計　' + fmt(list.length) + ' 個場景' +
       (miss ? '（' + fmt(miss) + ' 筆未填報，不計入合計）' : '') + '</td>' +
       '<td class="r num">' + fmt(Math.round(sumS)) + '</td>' +
       '<td class="r num">' + fte(r1(sumF)) + '</td></tr>' +
-      // 序號是「這份清單的第幾列」，不是控管表的列號：清單已依狀態、子公司、年減少工時排過
-      '<tr><th class="sq">序號</th><th>子公司</th><th>部門</th><th>場景</th>' +
+      '<tr><th>子公司</th><th>部門</th><th>場景</th>' +
       '<th>技術類型</th><th>目前狀態</th><th>上線</th><th>預計/實際上線</th><th>建置方式／廠商</th>' +
       '<th class="r">年減少工時</th><th class="r">AI 約當人力</th>' +
       '</tr></thead><tbody>';
-    list.forEach(function (r, i) {
+    list.forEach(function (r) {
       var cls = r.online ? 'p-live' : (r.overdue ? 'p-late' : (r.status === '待啟動' ? 'p-idle' : 'p-doing'));
       h += '<tr data-id="' + DATA.indexOf(r) + '">' +
-        '<td class="sq">' + (i + 1) + '</td>' +
         '<td class="co">' + esc(r.co) + '</td>' +
         '<td class="t-mut">' + esc(r.dept || '—') + '</td>' +
         '<td class="t-scene">' + esc(r.scene) + (r.anomaly ? '<span class="warn-i" title="' + esc(flagTitle(r)) + '">⚠</span>' : '') + '</td>' +
@@ -6195,8 +6323,6 @@ function cmpDeptHas() {
 function cmpList() {
   // 一家都沒提報場景的部門不必比（cmpData 本來就只產出有場景的部門，故不另行補列）
   return cmpData().filter(function (g) {
-    // 整列都是「未填／未提報」（沒有任何一家算得出數字）就不列：無數可比，中位數也印不出來
-    if (g.max === null) return false;
     return (CMP_HAS[g.key] ? Object.keys(CMP_HAS[g.key]).length : 0) >= 2 || g.coKeys.length >= 2;
   })
     // 固定依「該部門最高值 − 中位數」由大到小排；這是可直接換算成人年的差額，不需要再讓人選
@@ -6780,7 +6906,7 @@ function renderCompare() {
       ? kGo(SEL_CO + ' 最大差額', selTop ? cmpFmt(selTop.lag) : '—', selTop ? M.u : '',
         selTop ? selTop.g.key + '：' + SEL_CO + ' ' + cmpFmt(selTop.mine) + '，同部門最高 ' + cmpFmt(selTop.g.max)
           : SEL_CO + ' 於各可比部門均為最高值', '', selTop && selTop.g.key)
-      : kGo('可比部門', list.length, '個', '依部門對照表，2 家以上子公司設有且至少 1 家提報過已填報工時之場景；' +
+      : kGo('可比部門', list.length, '個', '依部門對照表，2 家以上子公司設有且至少 1 家提報場景之部門；' +
         '另有 ' + nSolo + ' 個僅 1 家子公司設有，不納入比較', '', null)) +
     kGo('未填報工時', missCell, '格', '有場景但完全未填工時之「子公司 × 部門」，不計入中位數，亦不視為 0', '', null);
   $$('#cm-kpi [data-ck]').forEach(function (el) {
@@ -6989,7 +7115,6 @@ function renderCmpMap() {
   var m = {};
   var cell = function (k, co) {
     var g = m[k] || (m[k] = { key: k, cos: {}, n: 0 });
-    g.nBen = g.nBen || 0;
     return g.cos[co] || (g.cos[co] = { n: 0, names: {}, roster: false });
   };
   if (R) Object.keys(R).forEach(function (co) {
@@ -7000,7 +7125,6 @@ function renderCmpMap() {
     if (!k || k === NO_DEPT) return;
     var b = cell(k, r.co);
     m[k].n++; b.n++;
-    if (r.fte !== null) m[k].nBen++;
     if (r.dept) b.names[norm(r.dept)] = 1;
   });
   var rows = Object.keys(m).map(function (k) {
@@ -7012,9 +7136,8 @@ function renderCmpMap() {
     return b.coKeys.length - a.coKeys.length || b.n - a.n;
   });
 
-  /* 「納入比較」＝ 2 家以上子公司設有此部門，且至少 1 家提報過「有填工時」的場景
-     ——與上方熱力圖同一門檻：整列都算不出人年的部門那裡不畫，這裡也不能列在①。 */
-  var canCmp = function (g) { return g.coKeys.length >= 2 && g.nBen > 0; };
+  // 「納入比較」＝ 2 家以上子公司設有此部門，且至少 1 家提報過場景（與上方熱力圖的可比部門同一門檻）
+  var canCmp = function (g) { return g.coKeys.length >= 2 && g.n > 0; };
   var inc = rows.filter(canCmp);
   var out = rows.filter(function (g) { return !canCmp(g); });
 
@@ -7060,8 +7183,8 @@ function renderCmpMap() {
     '對照為人工判定：同一職能、僅稱呼（部／室／處）或編制切法（一部／二部／三部）不同者合併，' +
     '職能不同者一律不合併（資訊開發 ≠ 資訊管理 ≠ 資安、財富管理 ≠ 理財事業）；' +
     '一個原始部門僅歸一個對照後部門，不重複計入</div>' +
-    sec('① 納入比較', '2 家以上子公司設有此部門，且至少 1 家提報過已填報工時之場景', inc, true) +
-    sec('② 未納入比較', '僅 1 家子公司設有此部門，或全體均未提報場景／均未填報工時', out, false);
+    sec('① 納入比較', '2 家以上子公司設有此部門，且至少 1 家提報過場景', inc, true) +
+    sec('② 未納入比較', '僅 1 家子公司設有此部門，或全體均未提報場景', out, false);
 }
 
 /* ================= 導覽 ================= */
@@ -7137,6 +7260,7 @@ function tableToXls(sel, name) {
 }
 
 function renderAll() {
+  initDetailFilters(); syncFilterUI();   // 子公司換了，明細的下拉選項與已選條件跟著換
   renderOverview(); renderProgress(); renderRoadmap(); renderCompare();
   renderReplicate(); renderBenefit(); renderDetail();
   syncTitle();
@@ -7152,6 +7276,7 @@ function renderAll() {
 /* ================= 啟動 ================= */
 function boot(res, fileName) {
   DATA = res.rows;
+  flagLaggingPriority();
   ROSTER = res.roster ? res.roster.dept : null;
   ROSTER_FUNC = res.roster ? res.roster.func : null;
   META.file = fileName; META.at = new Date();
@@ -7178,19 +7303,13 @@ function boot(res, fileName) {
       renderOverview();
     };
   });
-  $$('#chan-seg button').forEach(function (b) {
-    b.onclick = function () {
-      CHAN_MODE = b.dataset.m;
-      $$('#chan-seg button').forEach(function (x) { x.classList.toggle('on', x === b); });
-      renderOverview();
-    };
-  });
-  $('#qtr-co').onchange = function () { QTR_CO = this.value; renderQtrChart(); };
-  $('#qtr-func').onchange = function () { QTR_FUNC = this.value; renderQtrChart(); };
   $('#tech-year').onchange = function () { TECH_YEAR = this.value; renderOverview(); };
   $('#rd-tech').onchange = function () { RD_TECH = this.value; renderRoadmap(); };
   $('#rd-co').onchange = function () { RD_CO = this.value; renderRoadmap(); };
   $('#rd-func').onchange = function () { RD_FUNC = this.value; renderRoadmap(); };
+  $('#rp-tech').onchange = function () { RP_TECH = this.value; renderReplicate(); };
+  $('#rp-co').onchange = function () { RP_CO = this.value; renderReplicate(); };
+  $('#rp-func').onchange = function () { RP_FUNC = this.value; renderReplicate(); };
 
   $$('#fte-seg button').forEach(function (b) {
     b.onclick = function () { FTE_MODE = b.dataset.m; renderBenefit(); };
