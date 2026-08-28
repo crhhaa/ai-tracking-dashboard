@@ -1355,7 +1355,9 @@ table.cmp-t tr.cmp-r{cursor:pointer}
     <section class="sec" id="sec-progress">
       <div class="row c2">
         <div class="card fill">
-          <div class="card-h"><h3 class="card-t">推動進程<small>全長＝全部場景，由左到右為推進程度；階段內可展開 15 級狀態細項</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】最上方長條圖全長代表全部場景，由左到右為五個階段的推進程度，末段為資料異常，右側為完成度；下方按階段拆分，階段內展開 15 級狀態細項，右欄為該階段占全部場景之百分比。&#10;【關係】階段 × 場景數 × 占比之漏斗結構，各段落差即滯留於該階段之案量；末段為須回控管表更正之項目，非推進階段。&#10;【算法】&#10;・場景依「目前狀態」歸入五階段&#10;・「上線」段 ＝ 已上線；已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・兩欄不一致者不留於原階段，改歸第六段「(資料異常)上線狀態待確認」&#10;・六段相加 ＝ 全部場景，「上線」段筆數恆等於總覽之已上線數&#10;・完成度 ＝「上線」段場景數 ÷ 總場景數&#10;・各階段右欄百分比 ＝ 該階段場景數 ÷ 總場景數&#10;【可以點】點階段或狀態方格檢視該群場景清單；資料異常段點 ▾ 可展開說明。">?</span></div>
+          <div class="card-h"><h3 class="card-t">推動進程<small>全長＝全部場景，由左到右為推進程度；階段內可展開 15 級狀態細項</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】最上方長條圖全長代表全部場景，由左到右為五個階段的推進程度，末段為資料異常，右側為完成度；下方按階段拆分，階段內展開 15 級狀態細項，右欄為該階段占全部場景之百分比。&#10;【關係】階段 × 場景數 × 占比之漏斗結構，各段落差即滯留於該階段之案量；末段為須回控管表更正之項目，非推進階段。&#10;【算法】&#10;・場景依「目前狀態」歸入五階段&#10;・「上線」段 ＝ 已上線；已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・兩欄不一致者不留於原階段，改歸第六段「(資料異常)上線狀態待確認」&#10;・六段相加 ＝ 全部場景，「上線」段筆數恆等於總覽之已上線數&#10;・完成度 ＝「上線」段場景數 ÷ 總場景數&#10;・各階段右欄百分比 ＝ 該階段場景數 ÷ 總場景數&#10;【可以點】點階段或狀態方格檢視該群場景清單；資料異常段點 ▾ 可展開說明。">?</span>
+            <button class="btn-x btn-ncopy" data-node="pg-funnel" data-name="推動進程">複製圖片</button>
+            <button class="btn-x btn-npng" data-node="pg-funnel" data-name="推動進程">下載 PNG</button></div>
           <div class="funnel" id="pg-funnel"></div>
         </div>
         <div class="card">
@@ -1635,8 +1637,17 @@ table.cmp-t tr.cmp-r{cursor:pointer}
     <!-- ---- 7 版本更新 ---- -->
     <section class="sec" id="sec-changelog">
       <div class="card">
-        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5</b>；上傳控管表即產生儀表板</small></h3></div>
+        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5.1</b>；上傳控管表即產生儀表板</small></h3></div>
         <ol class="chlog">
+          <li>
+            <div class="ch-d">v5.1</div>
+            <ul><li><b>「進度控管 · 推動進程」可轉圖</b>：卡片標題右側新增<b>複製圖片</b>與<b>下載 PNG</b>兩鈕，
+                    與其他圖表卡、表格卡一致。此圖非圖表元件而係以網頁元素繪製，
+                    轉圖時連同當下樣式一併轉為向量圖再輸出點陣圖，故輸出內容即畫面所見
+                    （含展開／收合狀態、篩選後之數字），不含卡片標題與說明。
+                    瀏覽器不支援複製圖片時，鈕上會提示改用下載 PNG</li>
+            </ul>
+          </li>
           <li>
             <div class="ch-d">v5</div>
             <ul><li><b>「AI 運用場景導入進度」新增範圍切換</b>：<b>全部場景／優先導入／橫向複製</b>三選一。
@@ -5402,9 +5413,8 @@ function copyPng(btn, dataUrl) {
   } catch (err) { say('請改用下載 PNG'); }
 }
 
-/* 表格 → PNG：卡片上的鈕、放大視窗的鈕、場景視窗的鈕都走這兩支，行為一致 */
-function tablePngDownload(sel, name) {
-  var o = tableSlide(sel);
+/* {svg,w,h} → PNG：表格、任意 DOM 區塊都走這兩支，行為一致 */
+function slidePngDownload(o, name) {
   if (!o) return false;
   svgCanvas(o.svg, o.w, o.h, PNG_SCALE, function (c) {
     if (!c) return;
@@ -5417,10 +5427,9 @@ function tablePngDownload(sel, name) {
 }
 /* 複製：SVG → canvas 必須等 img.onload，來不及在點擊事件內同步取得 blob。
    ClipboardItem 收 Promise<Blob>，瀏覽器就會把後續的 async 算在這次使用者操作內。 */
-function tablePngCopy(btn, sel) {
+function slidePngCopy(btn, o) {
   var old = btn.textContent;
   var say = function (t) { btn.textContent = t; setTimeout(function () { btn.textContent = old; }, 1800); };
-  var o = tableSlide(sel);
   if (!o) return say('無圖可複製');
   if (!navigator.clipboard || !window.ClipboardItem) return say('請改用下載 PNG');
   var png = new Promise(function (ok, no) {
@@ -5433,6 +5442,40 @@ function tablePngCopy(btn, sel) {
     navigator.clipboard.write([new window.ClipboardItem({ 'image/png': png })])
       .then(function () { say('已複製 ✓'); }, function () { say('請改用下載 PNG'); });
   } catch (err) { say('請改用下載 PNG'); }
+}
+function tablePngDownload(sel, name) { return slidePngDownload(tableSlide(sel), name); }
+function tablePngCopy(btn, sel) { return slidePngCopy(btn, tableSlide(sel)); }
+
+/* 任意 DOM 區塊 → PNG（推動進程那種純 HTML 畫的圖，沒有 echarts 實例也不是表格）：
+   複製一份節點、把 computed style 逐個寫成 inline style，塞進 <foreignObject> 交給 svgCanvas。
+   只抄用得到的屬性——整份 cssText 一節點就三百多條，序列化出來的 SVG 會大到畫不動。 */
+var NODE_CSS = ['display', 'flex-direction', 'align-items', 'justify-content', 'gap', 'flex-wrap',
+  'flex', 'width', 'height', 'min-width', 'max-width', 'min-height', 'box-sizing',
+  'padding', 'margin', 'border', 'border-radius', 'background', 'color', 'font', 'line-height',
+  'letter-spacing', 'text-align', 'white-space', 'overflow', 'opacity', 'position',
+  'left', 'top', 'right', 'bottom', 'vertical-align', 'transform'];
+function inlineCss(src, dst) {
+  var s = getComputedStyle(src), t = '';
+  NODE_CSS.forEach(function (p) { var v = s.getPropertyValue(p); if (v) t += p + ':' + v + ';'; });
+  dst.setAttribute('style', t + (dst.getAttribute('style') || ''));
+  for (var i = 0; i < src.children.length; i++) inlineCss(src.children[i], dst.children[i]);
+}
+function nodeSlide(sel) {
+  var el = $(sel);
+  if (!el) return null;
+  var r = el.getBoundingClientRect();
+  if (r.width < 1 || r.height < 1) return null;         // 該區塊還沒顯示，量不到幾何
+  var W = Math.ceil(r.width), H = Math.ceil(r.height), pad = 16;
+  var cl = el.cloneNode(true);
+  inlineCss(el, cl);
+  cl.setAttribute('style', 'width:' + W + 'px;' + cl.getAttribute('style'));
+  return {
+    w: W + pad * 2, h: H + pad * 2,
+    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="' + (W + pad * 2) + '" height="' + (H + pad * 2) + '">' +
+      '<rect width="100%" height="100%" fill="#fff"/>' +
+      '<foreignObject x="' + pad + '" y="' + pad + '" width="' + W + '" height="' + H + '">' +
+      new XMLSerializer().serializeToString(cl) + '</foreignObject></svg>'
+  };
 }
 
 /* SVG → canvas：序列化成 data URI 再畫進 canvas，才有 PNG 可下載／複製 */
@@ -8198,6 +8241,16 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('click', function (e) {
     var b = e.target.closest ? e.target.closest('.btn-tcopy') : null;
     if (b) tablePngCopy(b, '#' + b.dataset.tbl);
+  });
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.btn-npng') : null;
+    if (b) slidePngDownload(nodeSlide('#' + b.dataset.node), b.dataset.name || b.dataset.node);
+  });
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.btn-ncopy') : null;
+    if (b) slidePngCopy(b, nodeSlide('#' + b.dataset.node));
   });
 
   document.addEventListener('click', function (e) {
