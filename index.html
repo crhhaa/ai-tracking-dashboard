@@ -1637,8 +1637,21 @@ table.cmp-t tr.cmp-r{cursor:pointer}
     <!-- ---- 7 版本更新 ---- -->
     <section class="sec" id="sec-changelog">
       <div class="card">
-        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5.1</b>；上傳控管表即產生儀表板</small></h3></div>
+        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5.2</b>；上傳控管表即產生儀表板</small></h3></div>
         <ol class="chlog">
+          <li>
+            <div class="ch-d">v5.2</div>
+            <ul><li><b>場景彈出視窗可依欄位排序</b>：下鑽出來的場景清單，表頭除序號外皆可點
+                    （子公司、部門、場景名、技術類型、導入屬性、目前狀態、上線、預計/實際上線、建置方式／廠商、年減少工時、AI 約當人力）。
+                    第一下起排，<b>同一欄點第三下回到預設排序</b>（目前狀態 → 子公司 → 年減少工時遞減）；
+                    箭頭 ▲／▼ 標示現正排序之欄位與方向。數字、日期與上線與否第一下為遞減，
+                    未填報工時與未排程時程一律墊在最後，序號則永遠是「這份清單的第幾列」。
+                    排序只重排同一批列，上方合計、場景數與筆數皆不受影響</li>
+                <li><b>「建置方式／廠商」依畫面所見排序</b>：該欄顯示的是整併後的管道名，
+                    原先排的是控管表原始欄位，排完看起來像沒排；場景明細表同步改正。
+                    場景明細表與彈出視窗自此共用同一套排序規則</li>
+            </ul>
+          </li>
           <li>
             <div class="ch-d">v5.1</div>
             <ul><li><b>「進度控管 · 推動進程」可轉圖</b>：卡片標題右側新增<b>複製圖片</b>與<b>下載 PNG</b>兩鈕，
@@ -6340,13 +6353,15 @@ function detailRows() {
     return true;
   });
 }
-function renderDetail() {
-  var d = detailRows();
-  var key = SORT.key, dir = SORT.dir;
-  d = d.slice().sort(function (a, b) {
+/* 欄位排序的單一比較器：明細表與下鑽視窗共用同一套規則
+   （子公司依集團順序、狀態依流程權重、未排程與未填報一律墊到最後，同值再依子公司順序） */
+function rowCmp(key, dir) {
+  return function (a, b) {
     var x = a[key], y = b[key];
     if (key === 'co') { x = CO_ORDER.indexOf(a.co); y = CO_ORDER.indexOf(b.co); }
     if (key === 'status') { x = statusRank(a.status); y = statusRank(b.status); }
+    // 建置方式／廠商欄顯示的是整併後的管道名（chanOf），排序要照畫面上看到的字排，不是排原始欄位
+    if (key === 'build') { x = chanOf(a); y = chanOf(b); }
     if (key === 'dueEnd') { x = a.dueEnd ? a.dueEnd.getTime() : 8.64e15; y = b.dueEnd ? b.dueEnd.getTime() : 8.64e15; }
     if (key === 'saved' || key === 'fte') {
       x = a[key] === null ? -1 : a[key]; y = b[key] === null ? -1 : b[key];
@@ -6355,7 +6370,16 @@ function renderDetail() {
     if (y === null || y === undefined) y = '';
     if (x < y) return -1 * dir; if (x > y) return 1 * dir;
     return CO_ORDER.indexOf(a.co) - CO_ORDER.indexOf(b.co);
-  });
+  };
+}
+/* 第一下要遞增還是遞減：數字、日期、上線與否，大的／晚的先看才有意義 */
+function sortDir0(k) {
+  return (k === 'saved' || k === 'fte' || k === 'dueEnd' || k === 'online') ? -1 : 1;
+}
+function renderDetail() {
+  var d = detailRows();
+  var key = SORT.key, dir = SORT.dir;
+  d = d.slice().sort(rowCmp(key, dir));
 
   // 一筆申報＝一個場景，所以場景數與申報筆數是同一個數字，不再並列兩次
   $('#dt-count').innerHTML = '符合 <b class="num">' + fmt(d.length) + '</b> / ' +
@@ -6401,8 +6425,7 @@ function renderDetail() {
   $$('#dt-table th.sortable').forEach(function (th) {
     th.onclick = function () {
       var kk = th.dataset.k;
-      if (SORT.key === kk) SORT.dir *= -1; else { SORT.key = kk; SORT.dir = (kk === 'saved' || kk === 'fte' || kk === 'dueEnd' || kk === 'online') ? -1 : 1; }
-      if (kk === 'dueEnd' && SORT.key === kk) { /* keep */ }
+      if (SORT.key === kk) SORT.dir *= -1; else { SORT.key = kk; SORT.dir = sortDir0(kk); }
       renderDetail();
     };
   });
@@ -6634,6 +6657,31 @@ function showRows(opts) {
   $('#md-sub').textContent = (opts.sub ? opts.sub + '　·　' : '') +
     '場景 ' + fmt(list.length) + ' 個　·　點擊任一列可查看完整資訊';
 
+  MD_ROWS = list; MD_SORT = null;
+  mdTable();
+  $('#md-open').style.display = opts.filter ? '' : 'none';
+  var back = MD_BACK, backLb = MD_BACK_LABEL;
+  MD_BACK = null; MD_BACK_LABEL = null;
+  $('#md-back').hidden = !back;
+  $('#md-back').textContent = '← ' + (backLb || '回時程檢視');
+  $('#md-back').onclick = back || null;
+  var m = $('#modal');
+  m.classList.add('show');
+  requestAnimationFrame(function () { m.classList.add('on'); $('#mscrim').classList.add('on'); });
+}
+/* 下鑽視窗的表格：MD_ROWS 是預設排序（狀態 → 子公司 → 年減少工時遞減），
+   點欄位頭換排序，同一欄點第三下回到預設排序。排序只重排同一批列，合計與筆數都不會變。 */
+var MD_ROWS = [];
+var MD_SORT = null;      // { key, dir }；null＝預設排序
+function mdTh(c) {
+  var on = MD_SORT && MD_SORT.key === c[0];
+  return '<th class="sortable' + (on ? ' sorted' : '') + (c[0] === 'dept' ? ' t-dept' : '') +
+    (c[0] === 'saved' || c[0] === 'fte' ? ' r' : '') + '" data-k="' + c[0] +
+    '" title="點擊排序（第三下回到預設排序）">' + c[1] +
+    '<i>' + (on ? (MD_SORT.dir > 0 ? '\u25B2' : '\u25BC') : '\u2195') + '</i></th>';
+}
+function mdTable() {
+  var list = MD_SORT ? MD_ROWS.slice().sort(rowCmp(MD_SORT.key, MD_SORT.dir)) : MD_ROWS;
   if (!list.length) {
     $('#md-body').innerHTML = '<div class="empty" style="height:180px">沒有符合條件的場景</div>';
   } else {
@@ -6659,10 +6707,11 @@ function showRows(opts) {
       '<td class="r num">' + fmt(Math.round(sumS)) + '</td>' +
       '<td class="r num">' + fte(r1(sumF)) + '</td></tr>' +
       // 序號是「這份清單的第幾列」，不是控管表的列號：清單已依狀態、子公司、年減少工時排過
-      '<tr><th class="sq">序號</th><th>子公司</th><th class="t-dept">部門</th>' +
-      '<th>場景名</th>' +
-      '<th>技術類型</th><th>導入屬性</th><th>目前狀態</th><th>上線</th><th>預計/實際上線</th><th>建置方式／廠商</th>' +
-      '<th class="r">年減少工時</th><th class="r">AI 約當人力</th>' +
+      // 表頭可點排序（第三下回到預設排序）；序號永遠是「這份清單的第幾列」
+      '<tr><th class="sq">序號</th>' +
+      [['co', '子公司'], ['dept', '部門'], ['scene', '場景名'], ['tech', '技術類型'], ['priority', '導入屬性'],
+       ['status', '目前狀態'], ['online', '上線'], ['dueEnd', '預計/實際上線'], ['build', '建置方式／廠商'],
+       ['saved', '年減少工時'], ['fte', 'AI 約當人力']].map(mdTh).join('') +
       '</tr></thead><tbody>';
     list.forEach(function (r, i) {
       var cls = r.online ? 'p-live' : (r.overdue ? 'p-late' : (r.status === '待啟動' ? 'p-idle' : 'p-doing'));
@@ -6687,15 +6736,15 @@ function showRows(opts) {
     $('#md-body').innerHTML = h + '</tbody></table>';
     bindRowClick('#md-body');
   }
-  $('#md-open').style.display = opts.filter ? '' : 'none';
-  var back = MD_BACK, backLb = MD_BACK_LABEL;
-  MD_BACK = null; MD_BACK_LABEL = null;
-  $('#md-back').hidden = !back;
-  $('#md-back').textContent = '← ' + (backLb || '回時程檢視');
-  $('#md-back').onclick = back || null;
-  var m = $('#modal');
-  m.classList.add('show');
-  requestAnimationFrame(function () { m.classList.add('on'); $('#mscrim').classList.add('on'); });
+  $$('#md-body th.sortable').forEach(function (th) {
+    var k = th.dataset.k, d0 = sortDir0(k);
+    th.onclick = function () {
+      if (!MD_SORT || MD_SORT.key !== k) MD_SORT = { key: k, dir: d0 };
+      else if (MD_SORT.dir === d0) MD_SORT = { key: k, dir: -d0 };
+      else MD_SORT = null;                 // 第三下：回到原本的預設排序
+      mdTable();
+    };
+  });
 }
 function closeModal() {
   var m = $('#modal');
