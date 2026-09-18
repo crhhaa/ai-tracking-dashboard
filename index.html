@@ -988,7 +988,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
 #mscrim.on{opacity:1;pointer-events:auto}
 #modal{
   position:fixed;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);
-  width:min(1360px,96vw);max-height:84vh;background:#fff;border-radius:14px;overflow:hidden;z-index:48;
+  width:min(1560px,97vw);max-height:84vh;background:#fff;border-radius:14px;overflow:hidden;z-index:48;
   box-shadow:0 24px 70px rgba(0,54,92,.28);display:none;flex-direction:column;
   opacity:0;transition:opacity .18s ease, transform .18s cubic-bezier(.3,.9,.3,1)
 }
@@ -1382,7 +1382,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
       <div id="rd-empty" class="empty" style="display:none;height:160px">無可用的時程資料</div>
       <div class="row">
         <div class="card">
-          <div class="card-h"><h3 class="card-t" id="rd-cum-t">各季上線規劃與累積上線曲線<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】橫軸為季度，柱為該季預計上線場景數（綠為已上線、灰為尚未上線），橘線為累積規劃，藍線為累積已上線；左軸為場景數，右軸為占已排程場景總數之百分比。&#10;【關係】柱呈現單季量體，兩線呈現累積規劃與累積實績，兩線垂直落差即累積待辦。&#10;【算法】&#10;・柱 ＝ 該季「預計/實際上線」之場景數（綠為已上線、灰為尚未上線）&#10;・已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・累積規劃 ＝ 至該季止已排程之場景數累加&#10;・累積已上線 ＝ 至該季止已上線之場景數累加（僅繪製至本季）&#10;・右軸百分比 ＝ 累積值 ÷ 已排程場景總數&#10;・標題對帳句：藍線終點等於當前已上線數時僅顯示已上線數；不等時列出差額，差額來自「已上線但時程未填或填在未來」之場景&#10;【可以點】點任一季檢視該季場景清單。">?</span>
+          <div class="card-h"><h3 class="card-t" id="rd-cum-t">各季上線規劃與累積上線曲線<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】橫軸為季度，柱為該季預計上線場景數（綠為已上線、灰為尚未上線），橘線為累積規劃，藍線為累積已上線；左軸為場景數，右軸為占總場景數之百分比。&#10;【關係】柱呈現單季量體，兩線呈現累積規劃與累積實績，兩線垂直落差即累積待辦。&#10;【算法】&#10;・柱 ＝ 該季「預計/實際上線」之場景數（綠為已上線、灰為尚未上線）&#10;・已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・累積規劃 ＝ 至該季止已排程之場景數累加&#10;・累積已上線 ＝ 至該季止已上線之場景數累加（僅繪製至本季）&#10;・右軸百分比 ＝ 累積值 ÷ 總場景數（本圖篩選範圍內，含未填時程者；全集團時即首頁總場景數）&#10;・未填時程之場景不落於任何季，故橘線終點未達 100%，差額即副標「另 N 個場景未填時程」&#10;・標題對帳句：藍線終點等於當前已上線數時僅顯示已上線數；不等時列出差額，差額來自「已上線但時程未填或填在未來」之場景&#10;【可以點】點任一季檢視該季場景清單。">?</span>
             <select id="rd-tech" class="sel-h" aria-label="技術類型"></select>
             <select id="rd-co" class="sel-h" aria-label="子公司"></select>
             <select id="rd-func" class="sel-h" aria-label="部門別"></select>
@@ -1637,8 +1637,18 @@ table.cmp-t tr.cmp-r{cursor:pointer}
     <!-- ---- 7 版本更新 ---- -->
     <section class="sec" id="sec-changelog">
       <div class="card">
-        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5.2</b>；上傳控管表即產生儀表板</small></h3></div>
+        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5.3</b>；上傳控管表即產生儀表板</small></h3></div>
         <ol class="chlog">
+          <li>
+            <div class="ch-d">v5.3</div>
+            <ul><li><b>時程 Roadmap「各季上線規劃與累積上線曲線」改以總場景數為分母</b>：
+                    右軸 100% 與左軸上限原為「已排程場景總數」，改為本圖篩選範圍內之<b>總場景數</b>（含未填時程者），
+                    全集團時即等於首頁總場景數。未填時程之場景不落於任何季，故累積規劃線終點不再是 100%，
+                    其差額於副標列出「另 N 個場景未填時程」</li>
+                <li><b>場景彈出視窗加寬</b>：寬度上限由 1360px 放寬至 1560px；子公司欄略加寬，
+                    排序符號與欄名黏在一起，窄欄折行時不再單獨掉到下一行</li>
+            </ul>
+          </li>
           <li>
             <div class="ch-d">v5.2</div>
             <ul><li><b>場景彈出視窗可依欄位排序</b>：下鑽出來的場景清單，表頭除序號外皆可點
@@ -4761,7 +4771,12 @@ function renderRoadmap() {
     ? '<b class="ok">當前已上線 ' + fmt(rdOnlineN) + ' 個</b>'
     : '<b class="warn">&#9888; 當前已上線 ' + fmt(rdOnlineN) + ' 個；累計至 ' + esc(THIS_Q) +
       ' 已上線 ' + fmt(rdOnCurve) + ' 個，差 ' + fmt(rdGap) + ' 個（上線時程未填或填在未來）</b>';
+  /* 分母＝此篩選範圍的總場景數（含未填時程），全集團時即首頁總場景數。
+     未填時程者不落在任何季，所以橘線終點＝總數 − 未填時程，到不了 100%，差額寫在副標。 */
+  var rdTotal = scn(dr);
+  var rdNoSch = scn(dr.filter(function (r) { return !(r.dueY && r.dueQ); }));
   $('#rd-cum-t').innerHTML = '各季上線規劃與累積上線曲線<small>' + esc(scope) + '　·　' + recon +
+    (rdNoSch ? '　·　另 <b class="warn">' + fmt(rdNoSch) + '</b> 個場景未填時程' : '') +
     '　·　兩線落差＝累積待辦，藍線僅繪至本季 ' + esc(THIS_Q) + '</small>';
 
   /* v6.1：該季的「已上線」再依該場景（在此篩選範圍內）的整體狀態拆成全數上線／部分單位上線。
@@ -4789,7 +4804,7 @@ function renderRoadmap() {
     return scn3(dr.filter(function (r) { return qLabel(r.dueY, r.dueQ) === q; })).none;
   });
   var anyPart = partA.some(function (v) { return v; });
-  // 累積曲線與柱狀共用同一個 Y 軸：累積規劃線的終點＝有排程的場景總數，
+  // 累積曲線與柱狀共用同一個 Y 軸：累積規劃線的終點＝有排程的場景數（＜總場景數），
   // 兩條線的落差就是「待辦」的累積量。
   /* 藍線只畫到本季：之後的季度還沒發生，把最後一個數字一路平延過去會變成一條假線
      （看起來像「未來幾季都只上線 22%」）。超過本季的點填 null，echarts 就不連線。 */
@@ -4800,10 +4815,9 @@ function renderRoadmap() {
     sA += onA[i] + offA[i]; cumAll.push(sA);
     sO += onA[i]; cumOn.push(i <= lastQ ? sO : null);
   });
-  var planned = sA;
-  /* 右軸：同一組數字換算成占「已排程場景總數」的百分比。左軸最大值就是 planned，
+  /* 右軸：同一組數字換算成占「總場景數」（rdTotal，含未填時程）的百分比。左軸最大值就是 rdTotal，
      所以 0～100% 的右軸剛好跟左軸對齊，兩條累積線各自在末端標出自己的％。 */
-  var cumPct = function (v) { return planned ? Math.round(v / planned * 1000) / 10 : 0; };
+  var cumPct = function (v) { return rdTotal ? Math.round(v / rdTotal * 1000) / 10 : 0; };
   // endIdx＝要標％的那一點（藍線提早收尾，不是陣列最後一格）
   var endPct = function (arr, color, endIdx) {
     var e = endIdx === undefined ? arr.length - 1 : endIdx;
@@ -4833,7 +4847,7 @@ function renderRoadmap() {
           '<span style="color:' + C.live + '">●</span> 該季全數上線 ' + fullA[i] +
           (anyPart ? '　<span style="color:' + C_PART + '">●</span> 部分單位上線 ' + partA[i] : '') +
           '　<span style="color:' + C_MUTED + '">●</span> 尚未上線 ' + offA[i] +
-          '<br/><span style="color:' + C.orange + '">●</span> 累積規劃 ' + cumAll[i] + ' / ' + planned +
+          '<br/><span style="color:' + C.orange + '">●</span> 累積規劃 ' + cumAll[i] + ' / ' + rdTotal +
           '（' + cumPct(cumAll[i]) + '%）' +
           (cumOn[i] === null
             ? '<br/><span style="color:' + C.ink3 + '">累積已上線　—　（' + THIS_Q + ' 之後尚未發生，藍線只畫到本季）</span>'
@@ -4844,7 +4858,7 @@ function renderRoadmap() {
     }),
     xAxis: axisX({ data: keys, axisLabel: qAxisLabel(keys.length > 9 ? { rotate: 32 } : null) }),
     yAxis: [
-      axisY({ name: '場景數（累積）', max: planned || null, nameTextStyle: { color: C.ink3, fontSize: 11, align: 'left' } }),
+      axisY({ name: '場景數（累積）', max: rdTotal || null, nameTextStyle: { color: C.ink3, fontSize: 11, align: 'left' } }),
       axisY({
         name: '累積占比', min: 0, max: 100, position: 'right', splitLine: { show: false },
         nameTextStyle: { color: C.ink3, fontSize: 11, align: 'right' },
@@ -6678,7 +6692,8 @@ function mdTh(c) {
   return '<th class="sortable' + (on ? ' sorted' : '') + (c[0] === 'dept' ? ' t-dept' : '') +
     (c[0] === 'saved' || c[0] === 'fte' ? ' r' : '') + '" data-k="' + c[0] +
     '" title="點擊排序（第三下回到預設排序）">' + c[1] +
-    '<i>' + (on ? (MD_SORT.dir > 0 ? '\u25B2' : '\u25BC') : '\u2195') + '</i></th>';
+    // \u2060\uFF08word joiner\uFF09\u628A\u6392\u5E8F\u7B26\u865F\u9ECF\u5728\u6700\u5F8C\u4E00\u500B\u5B57\u4E0A\uFF0C\u7A84\u6B04\u6298\u884C\u6642\u4E0D\u6703\u53EA\u5269\u300C\u2195\u300D\u55AE\u7368\u4E00\u884C
+    '\u2060<i>' + (on ? (MD_SORT.dir > 0 ? '\u25B2' : '\u25BC') : '\u2195') + '</i></th>';
 }
 function mdTable() {
   var list = MD_SORT ? MD_ROWS.slice().sort(rowCmp(MD_SORT.key, MD_SORT.dir)) : MD_ROWS;
@@ -6696,7 +6711,7 @@ function mdTable() {
     // 欄寬：固定百分比（總和 100），視窗多寬都不會出現橫向捲軸
     var h = '<table class="tbl"><colgroup>' +
       // 目前狀態最長 13 字（使用者驗收測試 (UAT)／(資料異常)上線狀態待確認），欄寬要夠
-      [3.5, 4.5, 9, 22].concat([8, 7, 11, 6, 7.5, 7.5, 7, 7])
+      [3.5, 5.5, 9, 21].concat([8, 7, 11, 6, 7.5, 7.5, 7, 7])
         .map(function (w) { return '<col style="width:' + w + '%">'; }).join('') +
       '</colgroup><thead>' +
       '<tr class="tbl-sum"><td colspan="10">合計　' +
