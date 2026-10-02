@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -381,6 +381,8 @@ button{font-family:inherit}
   padding:4px 8px;font-size:11.5px;color:var(--ink);font-family:inherit;outline:none;transition:.14s
 }
 .sel-h:focus{border-color:var(--yt-blue);box-shadow:0 0 0 3px var(--yt-blue-l)}
+/* 控制項群組：擠不下時整組一起換到下一行並靠右，不會只剩最後一顆掉下去 */
+.card-ctl{display:flex;flex:none;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:10px;margin-left:auto}
 .seg{display:flex;flex:none;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:#fff}
 .seg>button{border:0;background:#fff;padding:4px 9px;font-size:11px;color:var(--ink-3);cursor:pointer;
   white-space:nowrap;transition:.14s;font-family:inherit}
@@ -716,23 +718,13 @@ table.tbl tr.anom-g td em{font-style:normal;font-weight:500;color:#7A8894;margin
 .pr-st:hover{border-color:var(--yt-orange);color:var(--yt-orange);background:#FFF6F1}
 .pr-st b{font-size:11.5px;color:var(--yt-blue-d)}
 .pr-st:hover b{color:var(--yt-orange)}
-/* 資料異常段：名稱比階段名長，放寬不換行；標紅色，一眼就知道它不是階段之一 */
-.pr-step.anom .pr-lab{width:auto;white-space:nowrap;color:#C0392B}
-.pr-step.anom .pr-n,.pr-step.anom .pr-pct{color:#C0392B}
-.pr-step.anom .pr-head:hover{background:#FDF1EF}
-.pr-step.anom .pr-head:hover .pr-lab{color:#C0392B}
-/* 展開鈕：佔掉原本進度條的位置（這一段不畫進度條），所以整段仍然只有一行高 */
-.pr-tog{flex:none;display:inline-flex;align-items:center;gap:4px;margin-left:10px;
+/* 副標題裡的資料異常「查看清單」：點了開下鑽視窗 */
+.pr-tog{display:inline-flex;align-items:center;gap:4px;margin-left:8px;vertical-align:1px;
   border:1px solid #F0C8C1;background:#FDF1EF;border-radius:6px;
   font:inherit;font-size:11px;font-weight:700;color:#C0392B;
-  padding:2px 8px;cursor:pointer;line-height:1.6}
+  padding:0 7px;cursor:pointer;line-height:1.6}
 .pr-tog i{font-style:normal;font-size:9px}
 .pr-tog:hover{border-color:var(--yt-orange);color:var(--yt-orange);background:#FFF6F1}
-/* 資料異常段的待辦說明：預設收合，展開時用紅底標示這一段不是進度、是要回控管表更正的資料 */
-.pr-warn{margin:1px 0 9px 0;padding:7px 9px;border-left:3px solid #C0392B;background:#FDF1EF;
-  border-radius:0 6px 6px 0;font-size:11.5px;line-height:1.7;color:#7B2A20}
-.pr-warn[hidden]{display:none}
-.pr-warn b{font-size:12.5px;color:#C0392B}
 
 /* ---------- 熱力圖 ---------- */
 /* 欄位固定寬：子公司篩到證券時部門數多，寧可欄變窄也不要左右捲 */
@@ -1102,9 +1094,10 @@ table.cmp-t tr.cmp-r{cursor:pointer}
   /* 減掉「?」的寬度＋間距：標題與「?」同一行，其餘控制項才會整批被擠到下一行 */
   .card-t{flex:1 1 calc(100% - 32px)}
   .tip{width:24px;height:24px;line-height:22px;font-size:13px;margin-top:0}
-  .card-h>.btn-png,.card-h>.btn-x{flex:1 1 0;padding:8px 6px;font-size:11.5px}
-  .card-h>.seg,.card-h>.sel-h{flex:1 1 100%;max-width:none}
-  .card-h>.seg>button{flex:1;text-align:center;padding:7px 6px}
+  .card-h>.btn-png,.card-h>.btn-x,.card-ctl>.btn-png,.card-ctl>.btn-x{flex:1 1 0;padding:8px 6px;font-size:11.5px}
+  .card-ctl{flex:1 1 100%}
+  .card-h>.seg,.card-h>.sel-h,.card-ctl>.seg,.card-ctl>.sel-h{flex:1 1 100%;max-width:none}
+  .card-h>.seg>button,.card-ctl>.seg>button{flex:1;text-align:center;padding:7px 6px}
   /* 副標在手機上動輒十幾行，先收成兩行，點一下才展開 */
   .card-t small{
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
@@ -1288,7 +1281,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
 
       <div class="grp-h">導入進度總表</div>
       <div class="card">
-        <div class="card-h"><h3 class="card-t" id="ov-prog-t">AI 運用場景導入進度</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】列為子公司（篩選至單一公司時改為部門），每一子公司再依「推動方式」分為優先導入、橫向複製兩組，每組分「全數上線」「部分單位上線」與「總場景數」三列（無部分單位上線時退回兩列），欄為技術類型。右上切換鈕可只看其中一種推動方式：此時只畫該組、欄寬攤滿版面，完成度與總場景數亦只算該組。&#10;【關係】完成度欄為該列在目前範圍下的推進程度；切換「優先導入」與「橫向複製」即可對照兩種推動方式的落實差距。&#10;【算法】&#10;・完成度 ＝ 全數上線場景數 ÷ 該列總場景數（與總覽大卡同一口徑）&#10;・全數上線 ＝ 該場景底下的部署全數上線；部分單位上線 ＝ 已有部署上線但未全數，不計入完成度&#10;・上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・推動方式取控管表「優先導入／橫向複製」欄之逐筆標記，非計算值；該欄空白或填報值不屬兩類者歸「未標記」欄，僅於「全部場景」呈現&#10;・格子 ＝ 該列 × 該技術類型的場景數&#10;【可以點】點任一格檢視場景清單；點標題可放大，向下捲動檢視全部部門。">?</span>
+        <div class="card-h"><h3 class="card-t" id="ov-prog-t">AI 運用場景導入進度</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】列為子公司（篩選至單一公司時改為部門），每一子公司再依「推動方式」分為優先導入、橫向複製兩組，每組分「全數上線」「部分單位上線」與「總場景數」三列（無部分單位上線時退回兩列），欄為技術類型。右上切換鈕可只看其中一種推動方式：此時只畫該組、欄寬攤滿版面，完成度與總場景數亦只算該組。&#10;【關係】完成度欄為該列在目前範圍下的推進程度；切換「優先導入」與「橫向複製」即可對照兩種推動方式的落實差距。&#10;【算法】&#10;・完成度 ＝ 全數上線場景數 ÷ 該列總場景數（與總覽大卡同一口徑）&#10;・全數上線 ＝ 該場景底下的部署全數上線；部分單位上線 ＝ 已有部署上線但未全數，不計入完成度&#10;・上線 ＝「上線」欄為已上線（不看「目前狀態」）&#10;・推動方式取控管表「優先導入／橫向複製」欄之逐筆標記，非計算值；該欄空白或填報值不屬兩類者歸「未標記」欄，僅於「全部場景」呈現&#10;・格子 ＝ 該列 × 該技術類型的場景數&#10;【可以點】點任一格檢視場景清單；點標題可放大，向下捲動檢視全部部門。">?</span>
           <div class="seg" id="prg-seg">
             <button data-m="" class="on">全部場景</button>
             <button data-m="優先導入">優先導入</button>
@@ -1303,14 +1296,16 @@ table.cmp-t tr.cmp-r{cursor:pointer}
       <div class="grp-h">分布分析</div>
       <div class="row c2">
         <div class="card">
-          <div class="card-h"><h3 class="card-t" id="ov-tech-t">AI 技術類型分布</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】技術類型，可切換三種對照維度：「依上線狀態」為技術 × 已／未上線，「依子公司／部門」為技術 × 單位，「年度累積」為技術 × 時間。&#10;【關係】同一批場景以三種維度對照：技術別的場景量、執行單位分布、上線時程進度。&#10;【算法】&#10;・「依上線狀態」綠 ＝ 已上線場景數，灰藍 ＝ 總場景數 − 已上線&#10;・已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・「依子公司／部門」格子 ＝ 該技術 × 該單位的場景數&#10;・「年度累積」累積規劃上線 ＝「預計/實際上線」年份 ≤ 所選年度的場景數（為規劃值，非實際上線）&#10;・尚未排入 ＝ 總場景數 − 累積規劃上線（含未填時程者）&#10;【可以點】點任一長條或格子檢視該類場景清單。">?</span>
-            <div class="seg" id="tech-seg">
-              <button data-m="online" class="on">依上線狀態</button>
-              <button data-m="dim" id="tech-seg-dim">依子公司</button>
-              <button data-m="year">年度累積</button>
-            </div>
-            <select id="tech-year" class="sel-h" aria-label="選擇年度" style="visibility:hidden" disabled></select>
-            <button class="btn-png" data-chart="ch-tech" data-name="技術類型分布">下載 PNG</button></div>
+          <div class="card-h"><h3 class="card-t" id="ov-tech-t">AI 技術類型分布</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】技術類型，可切換三種對照維度：「依上線狀態」為技術 × 已／未上線，「依子公司／部門」為技術 × 單位，「年度累積」為技術 × 時間。&#10;【關係】同一批場景以三種維度對照：技術別的場景量、執行單位分布、上線時程進度。&#10;【算法】&#10;・「依上線狀態」綠 ＝ 已上線場景數，灰藍 ＝ 總場景數 − 已上線&#10;・已上線 ＝「上線」欄為已上線（不看「目前狀態」）&#10;・「依子公司／部門」格子 ＝ 該技術 × 該單位的場景數&#10;・「年度累積」累積規劃上線 ＝「預計/實際上線」年份 ≤ 所選年度的場景數（為規劃值，非實際上線）&#10;・尚未排入 ＝ 總場景數 − 累積規劃上線（含未填時程者）&#10;【可以點】點任一長條或格子檢視該類場景清單。">?</span>
+            <div class="card-ctl">
+              <div class="seg" id="tech-seg">
+                <button data-m="online" class="on">依上線狀態</button>
+                <button data-m="dim" id="tech-seg-dim">依子公司</button>
+                <button data-m="year">年度累積</button>
+              </div>
+              <select id="tech-year" class="sel-h" aria-label="選擇年度" style="display:none" disabled></select>
+              <button class="btn-png" data-chart="ch-tech" data-name="技術類型分布">下載 PNG</button>
+            </div></div>
           <div class="chart dist" id="ch-tech"></div>
         </div>
         <div class="card">
@@ -1319,7 +1314,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
               <button data-m="cov" id="chan-seg-dim" class="on">依子公司</button>
               <button data-m="tech">依技術類型</button>
             </div>
-            <span id="chan-btns"></span></div>
+            <span id="chan-btns" class="card-ctl"></span></div>
           <div class="chart dist" id="ch-vendor"></div>
         </div>
       </div>
@@ -1355,20 +1350,20 @@ table.cmp-t tr.cmp-r{cursor:pointer}
     <section class="sec" id="sec-progress">
       <div class="row c2">
         <div class="card fill">
-          <div class="card-h"><h3 class="card-t">推動進程<small>全長＝全部場景，由左到右為推進程度；階段內可展開 15 級狀態細項</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】最上方長條圖全長代表全部場景，由左到右為五個階段的推進程度，末段為資料異常，右側為完成度；下方按階段拆分，階段內展開 15 級狀態細項，右欄為該階段占全部場景之百分比。&#10;【關係】階段 × 場景數 × 占比之漏斗結構，各段落差即滯留於該階段之案量；末段為須回控管表更正之項目，非推進階段。&#10;【算法】&#10;・場景依「目前狀態」歸入五階段&#10;・「上線」段 ＝ 已上線；已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・兩欄不一致者不留於原階段，改歸第六段「(資料異常)上線狀態待確認」&#10;・六段相加 ＝ 全部場景，「上線」段筆數恆等於總覽之已上線數&#10;・完成度 ＝「上線」段場景數 ÷ 總場景數&#10;・各階段右欄百分比 ＝ 該階段場景數 ÷ 總場景數&#10;【可以點】點階段或狀態方格檢視該群場景清單；資料異常段點 ▾ 可展開說明。">?</span>
+          <div class="card-h"><h3 class="card-t">推動進程<small>全長＝全部場景，由左到右為推進程度；階段內可展開 15 級狀態細項</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】最上方長條圖全長代表全部場景，由左到右為五個階段的推進程度，右側為完成度；下方按階段拆分，階段內展開 15 級狀態細項，右欄為該階段占全部場景之百分比。&#10;【關係】階段 × 場景數 × 占比之漏斗結構，各段落差即滯留於該階段之案量。&#10;【算法】&#10;・場景依「目前狀態」歸入五階段&#10;・「上線」段 ＝「上線」欄為已上線（與總覽已上線數相同）&#10;・其餘依「目前狀態」歸入四階段；「目前狀態」為正式上線但「上線」欄未標者歸「測試導入」&#10;・五段相加 ＝ 全部場景；兩欄不一致之筆數標於副標題，不另畫段&#10;・完成度 ＝「上線」段場景數 ÷ 總場景數（與總覽完成度相同）&#10;・各階段右欄百分比 ＝ 該階段場景數 ÷ 總場景數&#10;【可以點】點階段或狀態方格檢視該群場景清單；">?</span>
             <button class="btn-x btn-ncopy" data-node="pg-funnel" data-name="推動進程">複製圖片</button>
             <button class="btn-x btn-npng" data-node="pg-funnel" data-name="推動進程">下載 PNG</button></div>
           <div class="funnel" id="pg-funnel"></div>
         </div>
         <div class="card">
-          <div class="card-h"><h3 class="card-t">到期狀態監控<small>以開啟本頁當日為基準日</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】剩餘天數分為六群（已逾期、30 天內、31–60 天、61–180 天、180 天以上、未排程）× 場景數。&#10;【關係】將時程欄換算為時間壓力分布，越左側越急迫。&#10;【算法】&#10;・剩餘天數 ＝「預計/實際上線」− 基準日&#10;・基準日 ＝ 開啟本頁當日之系統日期&#10;・僅填至季別之時程（如 2026Q4）以該季最後一日判定&#10;・已上線場景不列入前五群；已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・時程空白或填「-」者歸「未排程」&#10;【可以點】點柱狀圖檢視該群場景清單。">?</span>
+          <div class="card-h"><h3 class="card-t">到期狀態監控<small>以開啟本頁當日為基準日</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】剩餘天數分為六群（已逾期、30 天內、31–60 天、61–180 天、180 天以上、未排程）× 場景數。&#10;【關係】將時程欄換算為時間壓力分布，越左側越急迫。&#10;【算法】&#10;・剩餘天數 ＝「預計/實際上線」− 基準日&#10;・基準日 ＝ 開啟本頁當日之系統日期&#10;・僅填至季別之時程（如 2026Q4）以該季最後一日判定&#10;・已上線場景不列入前五群；已上線 ＝「上線」欄為已上線（不看「目前狀態」）&#10;・時程空白或填「-」者歸「未排程」&#10;【可以點】點柱狀圖檢視該群場景清單。">?</span>
             <button class="btn-png" data-chart="ch-due" data-name="到期狀態監控">下載 PNG</button></div>
           <div class="chart tall" id="ch-due"></div>
         </div>
       </div>
       <div class="row">
         <div class="card">
-          <div class="card-h"><h3 class="card-t" id="pg-prog-t">各子公司導入進度</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】列為子公司（篩選至單一公司時改為部門），每條長條圖全長固定為 100%，由左到右為五個階段之占比；右端標示完成度與總場景數。&#10;【關係】以相同基準比較各單位之推進結構，而非僅比較完成度數值。&#10;【算法】&#10;・各段 ＝ 該階段場景數 ÷ 該列總場景數&#10;・階段歸類與「推動進程」採同一套規則（含「(資料異常)上線狀態待確認」段）&#10;・完成度 ＝ 已上線 ÷ 該列總場景數&#10;【可以點】點任一段檢視場景清單；點標題可放大展開至原始部門名稱。">?</span>
+          <div class="card-h"><h3 class="card-t" id="pg-prog-t">各子公司導入進度</h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】列為子公司（篩選至單一公司時改為部門），每條長條圖全長固定為 100%，由左到右為五個階段之占比；右端標示完成度與總場景數。&#10;【關係】以相同基準比較各單位之推進結構，而非僅比較完成度數值。&#10;【算法】&#10;・各段 ＝ 該階段場景數 ÷ 該列總場景數&#10;・階段歸類與「推動進程」採同一套規則&#10;・完成度 ＝「上線」段場景數 ÷ 該列總場景數（與「推動進程」、總覽同口徑）&#10;【可以點】點任一段檢視場景清單；點標題可放大展開至原始部門名稱。">?</span>
             <button class="btn-png" data-chart="ch-prog" data-name="各子公司導入進度">下載 PNG</button></div>
           <div class="chart tall" id="ch-prog"></div>
         </div>
@@ -1382,7 +1377,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
       <div id="rd-empty" class="empty" style="display:none;height:160px">無可用的時程資料</div>
       <div class="row">
         <div class="card">
-          <div class="card-h"><h3 class="card-t" id="rd-cum-t">各季上線規劃與累積上線曲線<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】橫軸為季度，柱為該季預計上線場景數（綠為已上線、灰為尚未上線），橘線為累積規劃，藍線為累積已上線；左軸為場景數，右軸為占總場景數之百分比。&#10;【關係】柱呈現單季量體，兩線呈現累積規劃與累積實績，兩線垂直落差即累積待辦。&#10;【算法】&#10;・柱 ＝ 該季「預計/實際上線」之場景數（綠為已上線、灰為尚未上線）&#10;・已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;・累積規劃 ＝ 至該季止已排程之場景數累加&#10;・累積已上線 ＝ 至該季止已上線之場景數累加（僅繪製至本季）&#10;・右軸百分比 ＝ 累積值 ÷ 總場景數（本圖篩選範圍內，含未填時程者；全集團時即首頁總場景數）&#10;・未填時程之場景不落於任何季，故橘線終點未達 100%，差額即副標「另 N 個場景未填時程」&#10;・標題對帳句：藍線終點等於當前已上線數時僅顯示已上線數；不等時列出差額，差額來自「已上線但時程未填或填在未來」之場景&#10;【可以點】點任一季檢視該季場景清單。">?</span>
+          <div class="card-h"><h3 class="card-t" id="rd-cum-t">各季上線規劃與累積上線曲線<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】橫軸為季度，柱為該季預計上線場景數（綠為已上線、灰為尚未上線），橘線為累積規劃，藍線為累積已上線；左軸為場景數，右軸為占總場景數之百分比。&#10;【關係】柱呈現單季量體，兩線呈現累積規劃與累積實績，兩線垂直落差即累積待辦。&#10;【算法】&#10;・柱 ＝ 該季「預計/實際上線」之場景數（綠為已上線、灰為尚未上線）&#10;・已上線 ＝「上線」欄為已上線（不看「目前狀態」）&#10;・累積規劃 ＝ 至該季止已排程之場景數累加&#10;・累積已上線 ＝ 至該季止已上線之場景數累加（僅繪製至本季）&#10;・右軸百分比 ＝ 累積值 ÷ 總場景數（本圖篩選範圍內，含未填時程者；全集團時即首頁總場景數）&#10;・未填時程之場景不落於任何季，故橘線終點未達 100%，差額即副標「另 N 個場景未填時程」&#10;・標題對帳句：藍線終點等於當前已上線數時僅顯示已上線數；不等時列出差額，差額來自「已上線但時程未填或填在未來」之場景&#10;【可以點】點任一季檢視該季場景清單。">?</span>
             <select id="rd-tech" class="sel-h" aria-label="技術類型"></select>
             <select id="rd-co" class="sel-h" aria-label="子公司"></select>
             <select id="rd-func" class="sel-h" aria-label="部門別"></select>
@@ -1536,7 +1531,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
           <div class="chart tall" id="ch-bn-fte"></div>
         </div>
         <div class="card">
-          <div class="card-h"><h3 class="card-t" id="bn-real-t">效益實現進度：已實現 vs 待實現<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】堆疊柱將 AI 約當人力拆分為已實現（已上線）與待實現（未上線），折線為實現率（已實現 ÷ 合計）。&#10;【關係】柱高為效益總額，折線為已兌現比例，並列呈現存量與進度。&#10;【算法】&#10;・已實現 ＝ 已上線場景之 AI 約當人力合計&#10;・待實現 ＝ 未上線場景之 AI 約當人力合計&#10;・實現率 ＝ 已實現 ÷（已實現 ＋ 待實現）&#10;・已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;【可以點】點柱狀圖檢視該單位的場景清單。">?</span>
+          <div class="card-h"><h3 class="card-t" id="bn-real-t">效益實現進度：已實現 vs 待實現<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】堆疊柱將 AI 約當人力拆分為已實現（已上線）與待實現（未上線），折線為實現率（已實現 ÷ 合計）。&#10;【關係】柱高為效益總額，折線為已兌現比例，並列呈現存量與進度。&#10;【算法】&#10;・已實現 ＝ 已上線場景之 AI 約當人力合計&#10;・待實現 ＝ 未上線場景之 AI 約當人力合計&#10;・實現率 ＝ 已實現 ÷（已實現 ＋ 待實現）&#10;・已上線 ＝「上線」欄為已上線（不看「目前狀態」）&#10;【可以點】點柱狀圖檢視該單位的場景清單。">?</span>
             <button class="btn-png" data-chart="ch-bn-real" data-name="效益實現進度">下載 PNG</button></div>
           <div class="chart tall" id="ch-bn-real"></div>
         </div>
@@ -1582,7 +1577,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
 
       <div class="grp-h">效益時程</div>
       <div class="card">
-        <div class="card-h"><h3 class="card-t" id="bn-cum-t">累積效益曲線：已實現 → 待實現<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】橫軸為上線季度，縱軸為累積 AI 約當人力；綠色實線為已上線（已實現），橘色虛線為含未上線之推估合計。&#10;【關係】兩線落差即已規劃但尚未兌現之效益。&#10;【算法】&#10;・橫軸依「預計/實際上線」季別&#10;・綠色實線 ＝ 至該季止已上線場景之 AI 約當人力累加&#10;・橘色虛線 ＝ 至該季止全部（含未上線）場景之 AI 約當人力累加&#10;・已上線 ＝「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」&#10;【可以點】點任一季檢視該季已填報效益的場景清單。">?</span>
+        <div class="card-h"><h3 class="card-t" id="bn-cum-t">累積效益曲線：已實現 → 待實現<small></small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】橫軸為上線季度，縱軸為累積 AI 約當人力；綠色實線為已上線（已實現），橘色虛線為含未上線之推估合計。&#10;【關係】兩線落差即已規劃但尚未兌現之效益。&#10;【算法】&#10;・橫軸依「預計/實際上線」季別&#10;・綠色實線 ＝ 至該季止已上線場景之 AI 約當人力累加&#10;・橘色虛線 ＝ 至該季止全部（含未上線）場景之 AI 約當人力累加&#10;・已上線 ＝「上線」欄為已上線（不看「目前狀態」）&#10;【可以點】點任一季檢視該季已填報效益的場景清單。">?</span>
           <button class="btn-png" data-chart="ch-bn-cum" data-name="累積效益曲線">下載 PNG</button></div>
         <div class="chart tall" id="ch-bn-cum"></div>
       </div>
@@ -1614,6 +1609,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
           <option value="benlive">效益已實現（已上線）</option>
           <option value="benpend">效益待實現（未上線）</option>
           <option value="usage">已填報使用情形</option>
+          <option value="mismatch">上線狀態矛盾</option>
           <option value="anomaly">資料異常</option>
         </select></div>
         <div id="f-tags" class="f-tags"></div>
@@ -1626,7 +1622,7 @@ table.cmp-t tr.cmp-r{cursor:pointer}
     <!-- ---- 7.5 資料異常 ---- -->
     <section class="sec" id="sec-anomaly">
       <div class="card">
-        <div class="card-h"><h3 class="card-t">資料異常之場景<small>依異常分類與種類分群，點標籤可篩選單一種類　·　Excel 位置對應原檔列號</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】異常分類 × 種類 × 件數 × 嚴重度。紅點為需修正（數字已影響統計結果），橘點為需確認（填報前後不一致）。&#10;【關係】依填報欄位所屬區塊分為「上線狀態與時程」「人力與工時計算」「使用情形填報」三類，每一種類附說明一句，並提供 Excel 位置對應原檔列號。&#10;【算法】&#10;・逐場景執行各條檢核，任一條成立即列入&#10;・同一筆可同時屬多個種類，故各種類件數相加大於場景數&#10;・「上線狀態矛盾」＝「目前狀態＝正式上線」與「上線＝已上線」僅一邊成立&#10;【可以點】點標籤篩選單一種類、再點一次取消；點任一列開啟場景詳情。">?</span>
+        <div class="card-h"><h3 class="card-t">資料異常之場景<small>依異常分類與種類分群，點標籤可篩選單一種類　·　Excel 位置對應原檔列號</small></h3><span class="tip" tabindex="0" role="note" aria-label="圖表讀法說明" data-tip="【維度】異常分類 × 種類 × 件數 × 嚴重度。紅點為需修正（數字已影響統計結果），橘點為需確認（填報前後不一致）。&#10;【關係】依填報欄位所屬區塊分為「上線狀態與時程」「人力與工時計算」「使用情形填報」三類，每一種類附說明一句，並提供 Excel 位置對應原檔列號。&#10;【算法】&#10;・逐場景執行各條檢核，任一條成立即列入&#10;・同一筆可同時屬多個種類，故各種類件數相加大於場景數&#10;・「上線狀態矛盾」＝「目前狀態＝正式上線」與「上線＝已上線」僅一邊成立；「上線」欄為已上線者仍計入已上線，反之不計入&#10;【可以點】點標籤篩選單一種類、再點一次取消；點任一列開啟場景詳情。">?</span>
           <button class="btn-x btn-tcopy" data-tbl="pg-anom" data-name="資料異常提醒">複製圖片</button>
           <button class="btn-x btn-tpng" data-tbl="pg-anom" data-name="資料異常提醒">下載 PNG</button>
           <button class="btn-x btn-xls" data-tbl="pg-anom" data-name="資料異常提醒">下載表格</button></div>
@@ -1637,8 +1633,32 @@ table.cmp-t tr.cmp-r{cursor:pointer}
     <!-- ---- 7 版本更新 ---- -->
     <section class="sec" id="sec-changelog">
       <div class="card">
-        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5.3</b>；上傳控管表即產生儀表板</small></h3></div>
+        <div class="card-h"><h3 class="card-t">附錄：版本更新紀錄<small>本檔為單一 HTML，目前版本 <b>v5.5</b>；上傳控管表即產生儀表板</small></h3></div>
         <ol class="chlog">
+          <li>
+            <div class="ch-d">v5.5</div>
+            <ul><li><b>「推動進程」與「各子公司導入進度」之「上線」段改看「上線」欄</b>，與總覽已上線數一致；
+                    其餘階段仍依「目前狀態」，「目前狀態」為正式上線但「上線」欄未標者歸「測試導入」</li>
+                <li><b>圖表不再顯示「(資料異常)上線狀態待確認」段</b>；兩欄不一致之筆數改標於兩張圖之副標題，
+                    點「查看清單 ▸」彈出這些場景之清單（含 Excel 位置），可再轉至場景明細</li>
+                <li>推動進程各階段之狀態小格改為同時比對階段與目前狀態，已歸「上線」段之場景不再重複計入原階段小格</li>
+                <li>「各子公司導入進度」占比 3.5% 以上之段落即標示數字；刪除「各段相加可能大於總場景數」之過時說明</li>
+                <li>明細表「快速標記」新增「上線狀態矛盾」</li>
+                <li><b>「導入管道」補上「複製圖片」</b>：切換維度後按鈕重畫時一併帶出</li>
+                <li><b>「AI 技術類型分布」標題列按鈕不再單獨掉行</b>：控制項整組換行並靠右；年度下拉僅於「年度累積」時顯示、不占位</li>
+            </ul>
+          </li>
+          <li>
+            <div class="ch-d">v5.4</div>
+            <ul><li><b>「已上線」改為只看「上線」欄</b>：「上線」欄為已上線即計入，不再要求「目前狀態」同時為正式上線；
+                    總覽、時程 Roadmap、效益等所有「已上線」數字一律依此判定</li>
+                <li><b>進度控管「推動進程」與「各子公司導入進度」維持依「目前狀態」分階段</b>：
+                    兩欄不一致者仍改列「(資料異常)上線狀態待確認」，段內拆為兩格——
+                    「上線」欄已上線、目前狀態未到者（計入已上線）；目前狀態正式上線、「上線」欄未標者（不計入）。
+                    完成度 ＝「上線」段 ÷ 總場景數，故總覽已上線數 ＝ 推動進程「上線」段 ＋ 第六段之計入格</li>
+                <li><b>資料異常「上線狀態矛盾」之說明依方向區分</b>是否計入已上線；明細表「不計入」標籤僅標於後者</li>
+            </ul>
+          </li>
           <li>
             <div class="ch-d">v5.3</div>
             <ul><li><b>時程 Roadmap「各季上線規劃與累積上線曲線」改以總場景數為分母</b>：
@@ -2048,27 +2068,25 @@ var C_MUTED = '#BFD4E6';   // 「未上線 / 導入前」等次要量體
 var C_PART = '#8FCBB8';
 var C_FLAT = '#C2D2DE';   // 「未啟動 / 未排程」等中性量體
 
-/* 上線的單一口徑（v3 起）：「目前狀態」必須是正式上線，「上線」欄必須是已上線，兩個都成立才算上線。
-   v2 只認「上線」欄，於是同一筆場景在總覽（看上線欄）與導入階段（看目前狀態）會落在不同格，
-   長官對兩張圖就會發現數字對不起來——那是控管表填報前後不一致，不是儀表板算錯。
-   兩欄不一致的場景一律歸到 PHASE_ANOM，不計入上線，也不留在原階段裡，逼填報單位回原檔更正。 */
+/* 上線的單一口徑（v5.4 起）：「已上線」只看「上線」欄＝已上線，全儀表板一致。
+   推動進程的「上線」段也看上線欄，所以上線段＝總覽已上線；其餘依「目前狀態」分階段。
+   兩欄不一致（mismatch）時一律聽上線欄：狀態寫正式上線、上線欄未標的歸 PHASE_UNMARKED。
+   圖上不畫資料異常段，筆數只寫在副標題（mismatchNote）。 */
 var ST_LIVE = '正式上線';      // 「目前狀態」的終端值
 var ON_LIVE = '已上線';        // 「上線」欄的終端值
-var PHASE_ANOM = '(資料異常)上線狀態待確認';
+var PHASE_UNMARKED = '測試導入';  // 狀態正式上線但上線欄未標：還沒上線，放最接近上線的那一段
 
-/* 五階段（＋資料異常）：由「目前狀態」歸類，兩欄不一致者改歸 PHASE_ANOM */
+/* 五階段：上線段看上線欄，其餘由「目前狀態」歸類 */
 var PHASES = [
   { k: '待啟動',   c: '#A8BECE', st: ['待啟動'] },
   { k: '盤點規劃', c: '#88B9DD', st: ['場景盤點', '流程梳理', '需求規劃與設計', '概念性驗證 (PoC)'] },
   { k: '採購建置', c: '#4F93C4', st: ['廠商行政流程', '環境建置', '系統安裝', '系統分析與程式開發'] },
   { k: '測試導入', c: C.blue,   st: ['系統整合測試 (SIT)', '使用者驗收測試 (UAT)', '教育訓練', '上線前準備', '內部試營運'] },
-  { k: '上線',     c: C.live,   st: [ST_LIVE] },
-  { k: PHASE_ANOM, c: C.late,   st: [] }
+  { k: '上線',     c: C.live,   st: [ST_LIVE] }
 ];
 var PHASE_LIVE = '上線';
-/* 上線判定與矛盾判定的唯一實作：解析（rec.online / rec.mismatch）與異常規則（dataFlags）共用同一個函式，
-   兩邊各寫一次條件是 v2 數字對不起來的根本原因。 */
-function liveBy(status, onlineRaw) { return status === ST_LIVE && onlineRaw === ON_LIVE; }
+/* 上線判定與矛盾判定的唯一實作：解析（rec.online / rec.mismatch）與異常規則（dataFlags）共用。 */
+function liveBy(onlineRaw) { return onlineRaw === ON_LIVE; }
 function mismatchBy(status, onlineRaw) { return (status === ST_LIVE) !== (onlineRaw === ON_LIVE); }
 var STATUS_ORDER = [];
 PHASES.forEach(function (p) { p.st.forEach(function (s) { STATUS_ORDER.push(s); }); });
@@ -2571,16 +2589,15 @@ var HAS_SELECT_COL = false;
 var HRS_PER_PERSON_MAX = 2400;      // 一人一年 2000 工時，再寬鬆 20%；超過代表填的是全單位總工時
 function dataFlags(r) {
   var f = [], add = function (k, t) { f.push({ k: k, t: t }); };
-  /* 上線狀態矛盾（v3 起唯一的一條，取代 v2 的「狀態矛盾」與「已上線但狀態未更新」兩條單向規則）：
-     「目前狀態＝正式上線」與「上線＝已上線」必須同時成立，只有一邊成立就是填報前後不一致。
-     這種列不計入已上線、也不留在原階段，改歸「(資料異常)上線狀態待確認」——所以整份儀表板
-     的上線數字會偏保守，要回到正確數字只有一條路：請填報單位回控管表把兩欄改成一致。 */
+  /* 上線狀態矛盾：「目前狀態＝正式上線」與「上線＝已上線」只有一邊成立，就是填報前後不一致。
+     v5.4 起已上線只看上線欄，所以兩個方向的後果不同：(a) 上線欄已上線 → 仍計入已上線；
+     (b) 狀態正式上線但上線欄未標 → 不計入。推動進程同樣聽上線欄，(a) 在上線段、(b) 在測試導入段。 */
   if (mismatchBy(r.status, r.onlineRaw)) {
     add('上線狀態矛盾', r.status === ST_LIVE
       ? '「目前狀態」為正式上線，「上線」欄為「' + (r.onlineRaw || '未填') +
         '」；本場景不計入已上線，請填報單位確認實際上線狀態'
       : '「上線」欄為已上線，「目前狀態」為「' + r.status +
-        '」（' + (STATUS2PHASE[r.status] || '未分類') + '階段）；本場景不計入已上線，請填報單位更正');
+        '」（' + (STATUS2PHASE[r.status] || '未分類') + '階段）；本場景已計入已上線，請填報單位更正目前狀態');
   }
   if (r.hb !== null && r.ha !== null) {
     if (r.ha > r.hb) add('效益為負', '導入後每年投入總工時（' + fmt(r.ha) + '）高於導入前（' + fmt(r.hb) +
@@ -2601,8 +2618,7 @@ function dataFlags(r) {
     '導入後「每人每年投入工時」' + fmt(r.hrA) + ' 時，超過一人一年 ' + fmt(HOURS_PER_FTE) + ' 時；疑似將全單位總工時填入每人欄');
   if (r.headcount !== null && r.pplB !== null && r.pplB > r.headcount) add('投入人數 > 部門人數',
     '導入前投入 ' + fmt(r.pplB) + ' 人，但該部門人數只有 ' + fmt(r.headcount) + ' 人');
-  if (r.usedHours !== null && !r.online) add('未上線卻填使用率', '本場景未達已上線條件（目前狀態「' + r.status +
-    '」／上線欄「' + (r.onlineRaw || '未填') + '」），卻已填報 AI 場景使用率');
+  if (r.usedHours !== null && !r.online) add('未上線卻填使用率', '「上線」欄為「' + (r.onlineRaw || '未填') + '」，卻已填報 AI 場景使用率');
   if (r.usedHours === 0) add('使用率為 0', '使用人數／次數／工時任一欄填報為 0，年使用工時計算結果為 0');
   if (r.usedHours !== null && r.usedHours > 0 && r.hb !== null && r.hb > 0 && r.usedHours > r.hb)
     add('使用工時超過導入前', '實際年使用工時 ' + fmt(Math.round(r.usedHours)) + ' 時，高於導入前整段流程之 ' + fmt(r.hb) + ' 時');
@@ -2789,14 +2805,15 @@ function parseWorkbook(wb, fileName) {
       rec.verify = yn(iVerify >= 0 ? row[iVerify] : null);
       rec.select = yn(iSelect !== undefined ? row[iSelect] : null);
 
-      /* 上線（v3 起的單一口徑，見 PHASES 上方的說明）：兩欄都到終端值才算上線。
-         兩欄互相矛盾的（含「狀態＝正式上線但上線欄空白」）標成 mismatch，不算上線、也不留在原階段。
+      /* 上線（v5.4 起，見 PHASES 上方的說明）：只看上線欄。
+         兩欄互相矛盾的（含「狀態＝正式上線但上線欄空白」）標成 mismatch，推動進程裡不留在原階段。
          兩欄都沒填的不是矛盾，是還沒填，走原本的「未填 → 未分類」。 */
       var onv = (iOn !== undefined && row[iOn]) ? String(row[iOn]).trim() : '';
       rec.onlineRaw = onv;
-      rec.online = liveBy(rec.status, onv);
+      rec.online = liveBy(onv);
       rec.mismatch = mismatchBy(rec.status, onv);
-      rec.phase = rec.mismatch ? PHASE_ANOM : (STATUS2PHASE[rec.status] || '未分類');
+      // 一律聽上線欄：上線段＝全站已上線數；狀態寫正式上線但上線欄未標者不算上線
+      rec.phase = rec.online ? PHASE_LIVE : rec.status === ST_LIVE ? PHASE_UNMARKED : (STATUS2PHASE[rec.status] || '未分類');
 
       // 時程
       var dv = iDue !== undefined ? row[iDue] : null;
@@ -3240,7 +3257,8 @@ function renderOverview() {
   }
   if (TECH_YEAR && yAll.indexOf(Number(TECH_YEAR)) < 0) TECH_YEAR = '';
   // 用 visibility 而非 display：不是 year 模式時仍占著同樣寬度，上面那排 tab 才不會左右跳
-  $('#tech-year').style.visibility = TECH_MODE === 'year' ? 'visible' : 'hidden';
+  // 非年度模式整個收掉（不只隱形），不然空位照樣把右邊的按鈕擠到下一行
+  $('#tech-year').style.display = TECH_MODE === 'year' ? '' : 'none';
   $('#tech-year').disabled = TECH_MODE !== 'year';
   $('#tech-year').innerHTML = optHtml('', '全部年度', TECH_YEAR) +
     yAll.map(function (y) { return optHtml(String(y), y + ' 年底', TECH_YEAR); }).join('');
@@ -3637,7 +3655,9 @@ function renderChanCard() {
   var d = rows(), D = dim(), byDim = CHAN_MODE === 'cov';
   $('#chan-seg-dim').textContent = '依' + D.label;   // 篩到單一公司時 x 軸改列部門
   var xLabel = byDim ? D.label : '技術類型';
-  $('#chan-btns').innerHTML = '<button class="btn-png" data-chart="ch-vendor" ' +
+  // 這組按鈕每次重畫，開機時補「複製圖片」的那一輪補不到，所以自己帶
+  $('#chan-btns').innerHTML = '<button class="btn-x btn-copy" data-chart="ch-vendor">複製圖片</button>' +
+    '<button class="btn-png" data-chart="ch-vendor" ' +
     'data-name="導入管道與' + esc(xLabel) + '">下載 PNG</button>';
   $('#ov-chan-t').innerHTML = '導入管道　·　' + esc(xLabel) +
     '<small>格子＝該管道 × 該' + esc(xLabel) + '的場景數，標籤後灰字為合計' +
@@ -4307,8 +4327,7 @@ function renderProgress() {
 
   /* 推動進程：五個階段各一條，階段內再把 15 級狀態展成小格（＝原本的「目前狀態細分」長條）。
      最上面一條總進度＝篩選範圍（全集團或該子公司）的五階段分布。
-     第六段「(資料異常)上線狀態待確認」收兩欄對不起來的場景（見 PHASES 上方說明）：
-     六段加起來就是全部場景，「上線」段的筆數恆等於全儀表板的已上線數，兩張圖不會再有兩套數字。 */
+     上線段看「上線」欄（＝總覽已上線），圖上不畫資料異常，筆數寫在副標題。 */
   var fh = '', phaseList = PHASES.map(function (p) { return { k: p.k, c: p.c, st: p.st }; });
   if (d.some(function (r) { return r.phase === '未分類'; })) {
     phaseList.push({ k: '未分類', c: '#C9CDD2', st: [] });
@@ -4320,28 +4339,22 @@ function renderProgress() {
     var c = counts[pi];
     // 只有一個狀態的階段（未啟動／正式上線）再列一次是廢話，直接省略
     var stats = p.st.length < 2 ? [] : p.st.map(function (x) {
-      return { k: x, n: scn(d.filter(function (r) { return r.status === x; })) };
+      // 也要比對階段：上線欄已上線但狀態沒更新的已歸上線段，不能再算進原階段的小格
+      return { k: x, n: scn(d.filter(function (r) { return r.phase === p.k && r.status === x; })) };
     }).filter(function (x) { return x.n; });
     /* 上線段底下掛「全數上線／部分單位上線」兩格（v6.1）：這一段的場景數是「有部署上線」的，
        主管要問的是其中有幾個還沒全上線。原始場景口徑不可能有部分單位上線，就不掛。 */
     if (p.k === PHASE_LIVE && S3.part) {
       stats = [{ k: '全數上線', n: S3.full, sk: 'online' }, { k: '部分單位上線', n: S3.part, sk: 'partly' }];
     }
-    /* 資料異常段不畫進度條：那一段不是「推進到哪裡」，畫一條 2.3% 的進度反而讓人誤以為它是階段之一。
-       名稱比階段名長，也讓它不換行獨佔一行寬度。
-       筆數為 0 時整段不輸出：沒有異常就不該在進程圖裡佔一行。 */
-    var isAnom = p.k === PHASE_ANOM;
-    if (isAnom && !c) return;
-    fh += '<div class="pr-step' + (c ? '' : ' zero') + (isAnom ? ' anom' : '') + '">' +
-      '<div class="pr-head" data-phase="' + esc(p.k) + '" title="點擊查看' +
-      (isAnom ? '這 ' + c + ' 個待確認的場景' : '此階段的 ' + c + ' 個場景') + '">' +
+    fh += '<div class="pr-step' + (c ? '' : ' zero') + '">' +
+      '<div class="pr-head" data-phase="' + esc(p.k) + '" title="點擊查看此階段的 ' + c + ' 個場景">' +
       '<span class="pr-dot" style="background:' + p.c + '"></span>' +
       '<span class="pr-lab">' + esc(p.k) + '</span>' +
       '<span class="pr-n num">' + fmt(c) + '</span>' +
       '<span class="pr-pct num">' + pct(c, n) + '%</span>' +
-      (isAnom ? '<button class="pr-tog" type="button" aria-expanded="false" title="展開說明">說明 <i>▾</i></button>'
-        : '<span class="pr-track"><i data-w="' + (n ? c / n * 100 : 0).toFixed(1) +
-        '" style="background:' + p.c + '"></i></span>') +
+      '<span class="pr-track"><i data-w="' + (n ? c / n * 100 : 0).toFixed(1) +
+        '" style="background:' + p.c + '"></i></span>' +
       '</div>';
     if (stats.length) {
       fh += '<div class="pr-sts">' + stats.map(function (x) {
@@ -4349,17 +4362,6 @@ function renderProgress() {
           (x.sk ? ' data-sk="' + x.sk + '"' : ' data-status="' + esc(x.k) + '"') + '>' + esc(x.k) +
           '<b class="num">' + x.n + '</b></button>';
       }).join('') + '</div>';
-    }
-    /* 資料異常段不展開狀態細項（那些狀態底下還有填報正確的場景，展開會把它們一起帶進來），
-       改成把兩個方向的筆數與「請填報單位更正」寫在這裡——這一段不是進度，是待辦。 */
-    if (p.k === PHASE_ANOM && c) {
-      var mm = d.filter(function (r) { return r.mismatch; });
-      var mmLive = scn(mm.filter(function (r) { return r.status === ST_LIVE; }));
-      fh += '<div class="pr-warn" hidden>「目前狀態」與「上線」欄不一致之場景，均不計入已上線：' +
-        '「目前狀態」為正式上線、「上線」欄非已上線者 <b>' + fmt(mmLive) + '</b> 個；' +
-        '「上線」欄為已上線、「目前狀態」未達正式上線者 <b>' + fmt(c - mmLive) + '</b> 個。' +
-        '<br>此 ' + fmt(c) + ' 個場景須由填報單位於控管表將兩欄更正為一致，方可計入已上線。' +
-        '點本列可展開清單（含 Excel 位置）。</div>';
     }
     fh += '</div>';
   });
@@ -4375,24 +4377,13 @@ function renderProgress() {
     }
   });
   var band = progBar(bandSegs, SEL_CO || '全集團', n);
+  var fsm = $('#pg-funnel').closest('.card').querySelector('.card-t small');
+  fsm.innerHTML = '全長＝全部場景，由左到右為推進程度；階段內可展開 15 級狀態細項' + mismatchNote(d);
+  bindNoteTog(fsm);
   $('#pg-funnel').innerHTML = band +
     '<div class="pr-legend">階段<span>場景數 · 占比</span></div>' + fh;
   requestAnimationFrame(function () {
     $$('#pg-funnel .pr-track i').forEach(function (b) { b.style.width = b.dataset.w + '%'; });
-  });
-  /* 資料異常段預設收合：說明文字是兩行，攤開會把這張卡撐得比旁邊高一截。
-     ▾ 只切換說明，點列的其他地方仍然下鑽，所以要擋掉冒泡。 */
-  $$('#pg-funnel .pr-tog').forEach(function (el) {
-    el.onclick = function (e) {
-      e.stopPropagation();
-      var w = el.closest('.pr-step').querySelector('.pr-warn');
-      if (!w) return;
-      var open = w.hidden;
-      w.hidden = !open;
-      el.innerHTML = '說明 <i>' + (open ? '▴' : '▾') + '</i>';
-      el.setAttribute('aria-expanded', open ? 'true' : 'false');
-      el.title = open ? '收合說明' : '展開說明';
-    };
   });
   $$('#pg-funnel .pr-head, #pg-funnel .pbar-b i').forEach(function (el) {
     el.onclick = function () {
@@ -4400,8 +4391,7 @@ function renderProgress() {
       // 上線段拆出來的兩態不是 phase，走 KPI 卡的同一支下鑽
       if (el.dataset.sk) { kpiDrill(el.dataset.sk === 'full' ? 'online' : 'partly'); return; }
       PHASES.forEach(function (p) { if (p.k === ph) sts = p.st; });
-      drill('推動階段：' + ph,
-        ph === PHASE_ANOM ? '「目前狀態」與「上線」欄不一致，不計入已上線，請填報單位回控管表更正' : sts.join('／'),
+      drill('推動階段：' + ph, sts.join('／'),
         function (r) { return r.phase === ph; }, merge(blankFilter(), { phase: ph }));
     };
   });
@@ -4411,8 +4401,9 @@ function renderProgress() {
   $$('#pg-funnel .pr-st[data-status]').forEach(function (el) {
     el.onclick = function () {
       var v = el.dataset.status;
-      drill('目前狀態：' + v, STATUS2PHASE[v] || '', function (r) { return r.status === v; },
-        merge(blankFilter(), { status: v }));
+      var ph = STATUS2PHASE[v] || '';
+      drill('目前狀態：' + v, ph, function (r) { return r.phase === ph && r.status === v; },
+        merge(blankFilter(), { status: v, phase: ph }));
     };
   });
 
@@ -4421,9 +4412,9 @@ function renderProgress() {
      15 級狀態細項掛在 tooltip 裡（畫進圖裡只會擠成一團）。 */
   var D = dim(), cos = D.keys;
   $('#pg-prog-t').innerHTML = '各' + esc(D.label) + '導入進度' +
-    '<small>長條為各階段占比，右端為完成度與總場景數' +
-    '　·　同一場景橫跨多部門、各部門階段不同時每段都計，故各段相加可能大於總場景數' +
-    esc(dimNote(D)) + '</small>';
+    '<small>長條為各階段占比，右端為完成度與總場景數' + esc(dimNote(D)) +
+    mismatchNote(d) + '</small>';
+  bindNoteTog($('#pg-prog-t'));
   var mkProg = function (cos) {
     // 順序跟頂欄的子公司晶片（及其他圖表）一致；y 軸由下往上，反轉才是第一個在最上面
     var ord = cos.slice().reverse();
@@ -4436,21 +4427,16 @@ function renderProgress() {
       PHASES.forEach(function (p) {
         cnt[c][p.k] = { n: scn(g.filter(function (r) { return r.phase === p.k; })), st: {} };
         p.st.forEach(function (x) {
-          var m = scn(g.filter(function (r) { return r.status === x; }));
+          var m = scn(g.filter(function (r) { return r.phase === p.k && r.status === x; }));
           if (m) cnt[c][p.k].st[x] = m;
         });
       });
-    });
-    /* 資料異常段一筆都沒有時整段不畫：圖上沒有紅色，圖例卻掛著「(資料異常)…」，
-       會被當成「有異常只是看不到」。其餘階段一律留著，篩選前後的圖例才對得起來。 */
-    var phs = PHASES.filter(function (p) {
-      return p.k !== PHASE_ANOM || ord.some(function (c) { return cnt[c][p.k].n; });
     });
     /* v6.1：上線段拆成「全數上線／部分單位上線」兩段（原始場景口徑無部分單位上線，維持單段）。
        兩段相加恆等於原本的上線段（有部署上線的場景），整條長條的長度不變。 */
     var anyPart = ord.some(function (c) { return s3m[c].part; });
     var segs = [];
-    phs.forEach(function (p) {
+    PHASES.forEach(function (p) {
       if (p.k === PHASE_LIVE && anyPart) {
         segs.push({ k: '全數上線', c: C.live, sk: 'full', n: function (c) { return s3m[c].full; } });
         segs.push({ k: '部分單位上線', c: C_PART, sk: 'part', n: function (c) { return s3m[c].part; } });
@@ -4509,7 +4495,7 @@ function renderProgress() {
             show: true, color: inkOn(g.c), fontSize: 11, fontWeight: 800,
             formatter: function (q) {
               // 太窄的段落塞不進數字，寧可不標
-              return q.value >= 7 ? g.n(ord[q.dataIndex]) : '';
+              return q.value >= 3.5 ? g.n(ord[q.dataIndex]) : '';
             }
           }
         };
@@ -4611,18 +4597,17 @@ function renderProgress() {
 function flagTitle(r) {
   return r.flags.map(function (x) { return '【' + x.k + '】' + x.t; }).join('\n');
 }
-/* 表格的「上線」欄：印控管表原值，不印 AND 判定結果。
-   這一欄的定義就是 Excel 的「上線」欄，印判定結果會讓同一筆在明細表顯示「未上線」、
-   在場景詳情顯示「已上線」。與「目前狀態」不一致者轉橘並標「不計入」，
+/* 表格的「上線」欄：印控管表原值（v5.4 起已上線就只看這一欄）。
+   與「目前狀態」不一致者轉橘；其中上線欄非已上線的（(b) 狀態正式上線卻沒標）再標「不計入」，
    看的人才知道它為什麼沒被算進已上線。場景明細與下鑽視窗共用這一個實作。 */
 function onlineCell(r) {
   return '<td><span class="pill ' + (r.mismatch ? 'p-warn' : (r.online ? 'p-live' : 'p-idle')) + '">' +
     esc(r.onlineRaw || '未填') + '</span>' +
-    (r.mismatch ? '<span class="t-excl">不計入</span>' : '') + '</td>';
+    (r.mismatch && !r.online ? '<span class="t-excl">不計入</span>' : '') + '</td>';
 }
 /* 異常嚴重度：lv1（紅）＝數字本身錯了，會污染效益／人力合計；
    lv2（橘）＝填報前後不一致，統計還算得出來，但要跟填報單位確認。
-   「上線狀態矛盾」列 lv1：它直接把場景從「已上線」扣掉，儀表板每一張圖的上線數字都會偏低，
+   「上線狀態矛盾」列 lv1：目前狀態與上線欄講的是兩回事，(b) 還會被扣出已上線，
    影響面比任何一條效益規則都大，一定要排在最前面讓填報單位看到。 */
 var ANOM_LV2 = { '使用工時超過導入前': 1, '使用率為 0': 1, '未上線卻填使用率': 1, '已上線無時程': 1,
   '已上線但時程在未來': 1 };
@@ -4637,8 +4622,8 @@ var ANOM_HINT = {
   '未上線卻填使用率': '「上線」欄非已上線卻已填使用率，將被計入兌現率',
   '使用率為 0': '使用人數／次數／工時任一為 0，年使用工時計算結果為 0',
   '使用工時超過導入前': '上線後實際使用工時高於導入前整段流程，兌現率將超過 100%',
-  '上線狀態矛盾': '「目前狀態」與「上線」欄不一致，全儀表板均不計入已上線、改列「(資料異常)上線狀態待確認」，' +
-    '已上線數字將偏低；請填報單位於控管表將兩欄更正為一致',
+  '上線狀態矛盾': '「目前狀態」與「上線」欄不一致；全儀表板一律以「上線」欄判定是否上線，' +
+    '請填報單位於控管表將兩欄更正為一致',
   '已上線無時程': '已標記上線但未填上線時程，不計入任何時程圖表',
   '已上線但時程在未來': '已標記上線但時程填於未來季度，累積上線曲線須至該季始計入，與已上線數將產生差額'
 };
@@ -4727,6 +4712,27 @@ function anomalyBlock(d) {
   return h + '</tbody></table></div>' +
     '<div class="anom-foot">' + a.length + ' 個場景、合計 ' + nFlag +
     ' 項異常　·　點任一列可開啟場景詳情，點上方標籤可篩選單一種類</div>';
+}
+
+/* 圖表不畫資料異常，上線狀態矛盾的筆數只放在副標題（推動進程、各維度導入進度共用）。
+   「查看清單」開下鑽視窗列出那幾個場景（含 Excel 位置）；按鈕由 bindNoteTog 綁定。 */
+function mismatchNote(d) {
+  var m = scn(d.filter(function (r) { return r.mismatch; }));
+  return m ? '　·　<span style="color:' + C.late + '">資料異常：' + m +
+    ' 個場景「目前狀態」與「上線」欄不一致，一律依「上線」欄計</span>' +
+    '<button class="pr-tog" type="button" title="檢視這些場景">查看清單 <i>▸</i></button>' : '';
+}
+/* 副標題在標題裡，標題點了會放大圖表，所以要擋掉冒泡 */
+function bindNoteTog(root) {
+  var el = root.querySelector('.pr-tog');
+  if (!el) return;
+  el.onclick = function (e) {
+    e.stopPropagation();
+    drill('資料異常：上線狀態矛盾',
+      '一律依「上線」欄判定：「上線」欄已上線者計入已上線、列於「上線」段；' +
+      '「目前狀態」為正式上線但「上線」欄未標者不計入、列於「' + PHASE_UNMARKED + '」段。請填報單位於控管表將兩欄更正為一致',
+      function (r) { return r.mismatch; }, merge(blankFilter(), { flag: 'mismatch' }));
+  };
 }
 
 /* ================= 版面：Roadmap ================= */
@@ -6326,6 +6332,7 @@ function matchFlag(r, flag) {
     case 'soon': return r.dueSoon;
     case 'nosch': return r.noSchedule;
     case 'anomaly': return r.anomaly;
+    case 'mismatch': return r.mismatch;
     case 'benefit': return r.hasBenefit;
     case 'benlive': return r.hasBenefit && r.online;
     case 'benpend': return r.hasBenefit && !r.online;
@@ -6710,7 +6717,7 @@ function mdTable() {
     var miss = Math.max(nF, nS);
     // 欄寬：固定百分比（總和 100），視窗多寬都不會出現橫向捲軸
     var h = '<table class="tbl"><colgroup>' +
-      // 目前狀態最長 13 字（使用者驗收測試 (UAT)／(資料異常)上線狀態待確認），欄寬要夠
+      // 目前狀態最長 13 字（使用者驗收測試 (UAT)），欄寬要夠
       [3.5, 5.5, 9, 21].concat([8, 7, 11, 6, 7.5, 7.5, 7, 7])
         .map(function (w) { return '<col style="width:' + w + '%">'; }).join('') +
       '</colgroup><thead>' +
@@ -8120,8 +8127,8 @@ function boot(res, fileName) {
     (res.skipped.length ? '　|　<b>略過頁籤：</b>' + esc(res.skipped.join('、')) : '') +
     // 表頭對不到而改用固定欄位、或頁籤被略過，都要看得見，不能只留在 console
     (res.errors.length ? '<br/><b style="color:#C0392B">解析提醒：</b>' + esc(res.errors.join('；')) : '') +
-    '<br/><b>計算說明：</b>「已上線」須「目前狀態」為正式上線且「上線」欄為已上線，兩欄同時成立；'
-    + '僅一邊成立者不計入已上線，改列「(資料異常)上線狀態待確認」；'
+    '<br/><b>計算說明：</b>「已上線」一律以「上線」欄為已上線判定；'
+    + '推動進程的「上線」段同樣看「上線」欄，其餘依「目前狀態」分階段；'
     + '效益僅計入已填報「導入前/後每年投入工時」之場景；AI 約當人力 = 導入前人力 − 導入後人力，兩者各為每年投入總工時 ÷ '
     + fmt(HOURS_PER_FTE) + ' 工時，逐場景四捨五入至小數點第一位後相加；'
     + 'AI 場景年使用工時 = 每週使用人數 × 每人每週次數 × 每次工時 × 52；'
@@ -8178,7 +8185,7 @@ if (typeof module !== 'undefined' && module.exports) {   // 供 test.js 驗證�
     parseWorkbook: parseWorkbook, parseDue: parseDue, yn: yn, STATUS2PHASE: STATUS2PHASE,
     funcOf: funcOf, FUNCS: FUNCS, HOURS_PER_FTE: HOURS_PER_FTE, pathSlide: pathSlide,
     dataFlags: dataFlags, liveBy: liveBy, mismatchBy: mismatchBy, noteHtml: noteHtml,
-    PHASES: PHASES, PHASE_ANOM: PHASE_ANOM, PHASE_LIVE: PHASE_LIVE,
+    PHASES: PHASES, PHASE_LIVE: PHASE_LIVE,
     cmpDept: cmpDept, CMP_CANON: CMP_CANON, median: median, cmpDiff: cmpDiff,
     scn: scn, scn3: scn3, scnSet: scnSet, applySceneKeys: applySceneKeys,
     HAS_SELECT_COL: function () { return HAS_SELECT_COL; },
